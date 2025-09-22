@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détection de Mains en Temps Réel [Final]</title>
+    <!-- Importation de la police Pixel depuis Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: "Press Start 2P", monospace;
+            color: #fff;
+        }
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        video { display: none; }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #title_link {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 6px;
+            color: #0f0;
+            text-decoration: none;
+            z-index: 15;
+            padding: 5px;
+            transition: background-color 0.2s;
+        }
+        #title_link:hover {
+            background-color: rgba(0, 255, 0, 0.1);
+        }
+        #gui {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px;
+            border-radius: 6px;
+            z-index: 10;
+        }
+        .gui-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            justify-content: flex-end;
+        }
+        #gui label {
+            color: #fff;
+            font-size: 7px;
+            margin-right: 5px;
+            white-space: nowrap;
+        }
+        #gui select {
+            background-color: #111;
+            color: #0f0;
+            border: 1px solid #0f0;
+            font-family: "Press Start 2P", monospace;
+            font-size: 7px;
+            padding: 1px;
+            width: 100%;
+        }
+        #gui input[type="checkbox"] {
+            appearance: none;
+            width: 10px;
+            height: 10px;
+            border: 1px solid #0f0;
+            background-color: #111;
+            cursor: pointer;
+            position: relative;
+            top: 1px;
+        }
+        #gui input[type="checkbox"]:checked {
+            background-color: #0f0;
+            box-shadow: 0 0 3px #0f0;
+        }
+        #gui button {
+            background-color: transparent;
+            color: #0f0;
+            padding: 4px 6px;
+            border: 1px solid #0f0;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: "Press Start 2P", monospace;
+            font-size: 7px;
+            width: 100%;
+        }
+        #gui button:hover { background-color: rgba(0, 255, 0, 0.1); }
+        #start_game_button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: transparent;
+            color: #0f0;
+            padding: 8px 13px;
+            border: 2px solid #0f0;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: "Press Start 2P", monospace;
+            font-size: 8px;
+            z-index: 10;
+            text-shadow: 0 0 3px #0f0;
+        }
+        #start_game_button:hover { background-color: rgba(0, 255, 0, 0.15); }
+        #game_ui {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 20;
+        }
+        #timer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 0 0 8px #f00;
+        }
+        #score {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 0 0 8px #00f;
+        }
+        #countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 100px;
+            color: #fff;
+            text-shadow: 0 0 20px #ff0;
+        }
+        #volume_control {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px 8px;
+            border-radius: 5px;
+        }
+        #volume_control label {
+            font-size: 8px;
+            margin-right: 8px;
+            color: #fff;
+        }
+        
+        /* --- STYLE DES SLIDERS --- */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        #gui input[type="range"] { width: 60px; }
+        #volume_control input[type="range"] { width: 80px; }
+        
+        /* Track */
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #0f0;
+            height: 1px;
+        }
+        input[type="range"]::-moz-range-track {
+            background: #0f0;
+            height: 1px;
+        }
+
+        /* Thumb */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -6px; /* Centre le curseur sur la piste */
+            background-color: #000;
+            border: 1px solid #0f0;
+            height: 13px;
+            width: 13px;
+            border-radius: 50%;
+        }
+        input[type="range"]::-moz-range-thumb {
+            background-color: #000;
+            border: 1px solid #0f0;
+            height: 13px;
+            width: 13px;
+            border-radius: 50%;
+            border: 1px solid #0f0;
+        }
+
+    </style>
+    <!-- Importation des bibliothèques MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.2/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.1/camera_utils.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <a href="https://www.laurentcariou.net/" target="_blank" id="title_link">ERZ DESIGNWORKS COMPUTER VISION, 2025</a>
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="output_canvas"></canvas>
+        <div id="gui">
+            <div class="gui-item">
+                <label for="max_num_hands">Max Hands:</label>
+                <input type="range" id="max_num_hands" min="1" max="4" step="1" value="2">
+            </div>
+            <div class="gui-item">
+                <label for="filter_select">Filter:</label>
+                <select id="filter_select">
+                    <option value="ascii">ASCII Terminal</option>
+                    <option value="matrix">Binary Matrix</option>
+                    <option value="bleed">Data Bleed</option>
+                    <option value="holo">Holo Scan</option>
+                    <option value="neural">Neural Network</option>
+                    <option value="dreamscape">Dreamscape Echo</option>
+                    <option value="voronoi">Voronoi Shatter</option>
+                    <option value="virtualboy">VIRTUAL BOY</option>
+                </select>
+            </div>
+            <div class="gui-item">
+                <label for="filter_active">Activate Filter:</label>
+                <input type="checkbox" id="filter_active">
+            </div>
+            <div class="gui-item">
+                <label for="elastic_gadget_active">Elastic Gadget:</label>
+                <input type="checkbox" id="elastic_gadget_active">
+            </div>
+            <div class="gui-item">
+                <label for="face_detection_active">Face Detection:</label>
+                <input type="checkbox" id="face_detection_active">
+            </div>
+            <button id="reset_button">Reset</button>
+        </div>
+        <div id="game_ui">
+            <div id="timer"></div>
+            <div id="score"></div>
+            <div id="countdown"></div>
+        </div>
+        <button id="start_game_button">Start Game</button>
+        <div id="volume_control">
+            <label for="volume_slider">Volume:</label>
+            <input type="range" id="volume_slider" min="0" max="0.5" step="0.01" value="0.05">
+        </div>
+    </div>
+
+    <script>
+        // --- SÉLECTION DES ÉLÉMENTS DOM ---
+        const videoElement = document.getElementById('webcam');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        const maxNumHandsSlider = document.getElementById('max_num_hands');
+        const resetButton = document.getElementById('reset_button');
+        const filterCheckbox = document.getElementById('filter_active');
+        const filterSelect = document.getElementById('filter_select');
+        const elasticGadgetCheckbox = document.getElementById('elastic_gadget_active');
+        const faceDetectionCheckbox = document.getElementById('face_detection_active');
+        const startGameButton = document.getElementById('start_game_button');
+        const guiElement = document.getElementById('gui');
+        const gameUiElement = document.getElementById('game_ui');
+        const timerElement = document.getElementById('timer');
+        const scoreElement = document.getElementById('score');
+        const countdownElement = document.getElementById('countdown');
+        const volumeSlider = document.getElementById('volume_slider');
+        const titleLink = document.getElementById('title_link');
+
+        // --- CACHING DES PARAMÈTRES ---
+        const settings = {
+            maxNumHands: 2, isFilterActive: false, selectedFilter: 'ascii',
+            isGadgetActive: false, isFaceDetectionActive: false, globalVolume: 0.05
+        };
+
+        let hands, faceDetection;
+        let handValues = [], handAngles = [], matrixDrops = [], fingertipOrbitalAngle = 0;
+        let lastFaceResults = null;
+
+        // --- GADGET ---
+        let gadget;
+        const stiffness = 0.06, damping = 0.78;   
+
+        // --- AUDIO ---
+        let audioCtx;
+        let audioNodes = [];
+        let isAudioInitialized = false;
+        let lastHandValues = [];
+        let audioStates = Array(4).fill(null).map(() => ({ value: 0, peak: 0, state: 'decaying' }));
+        const ATTACK_DECAY_TIME = 0.1;
+        const FRAMES_PER_SECOND = 60;
+
+        // --- JEU ---
+        let isGameRunning = false, score = 0, timeLeft = 60;
+        let gameInterval = null, countdownInterval = null;
+        const playerSize = 40, targetSize = playerSize * 1.7;
+        let player = { x: 100, y: 100, size: playerSize };
+        let target = { x: 300, y: 300, size: targetSize };
+        
+        function initializeGadget() {
+            gadget = {
+                x: window.innerWidth / 2, y: window.innerHeight / 2,
+                vx: 0, vy: 0, radius: 17, rotationAngle: 0
+            };
+        }
+
+        function initializeHands() {
+            hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${file}` });
+            hands.setOptions({ maxNumHands: settings.maxNumHands, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+            hands.onResults(onHandResults);
+        }
+
+        function initializeFaceDetection() {
+            faceDetection = new FaceDetection({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}` });
+            faceDetection.setOptions({ model: 'short', minDetectionConfidence: 0.5 });
+            faceDetection.onResults(onFaceResults);
+        }
+
+        function onFaceResults(results) {
+            lastFaceResults = results;
+        }
+        
+        function updateAudioEnvelopes() {
+            for (let i = 0; i < audioStates.length; i++) {
+                const state = audioStates[i];
+                if (state.peak === 0) continue;
+                const increment = state.peak / (FRAMES_PER_SECOND * ATTACK_DECAY_TIME);
+
+                if (state.state === 'attacking') {
+                    state.value += increment;
+                    if (state.value >= state.peak) {
+                        state.value = state.peak;
+                        state.state = 'decaying';
+                    }
+                } else if (state.state === 'decaying') {
+                    state.value -= increment;
+                    if (state.value <= 0) {
+                        state.value = 0;
+                        state.peak = 0;
+                    }
+                }
+            }
+        }
+
+        function onHandResults(results) {
+            const w = canvasElement.width, h = canvasElement.height;
+            fingertipOrbitalAngle += 0.05;
+            updateAudioEnvelopes();
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0 && !isAudioInitialized) initAudio();
+
+            // Étape 1: Dessiner l'image de la webcam en fond
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, w, h);
+            canvasCtx.translate(w, 0);
+            canvasCtx.scale(-1, 1);
+            canvasCtx.drawImage(videoElement, 0, 0, w, h);
+            canvasCtx.restore();
+            
+            // Étape 2: Calculer les données des mains
+            let firstHandAnchor = null;
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                handValues = [], handAngles = [];
+                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                    const landmarks = results.multiHandLandmarks[i];
+                    const thumbTip = landmarks[4], indexTip = landmarks[8];
+                    const distance = Math.hypot((thumbTip.x - indexTip.x) * w, (thumbTip.y - indexTip.y) * h);
+                    let value = distance > 20 ? Math.round(((distance - 20) / (375 - 20)) * 1000) : 0;
+                    value = Math.max(0, Math.min(value, 1000));
+                    handValues.push(value);
+                    const deltaX = (indexTip.x - thumbTip.x) * w, deltaY = (indexTip.y - thumbTip.y) * h;
+                    const angleRad = Math.atan2(deltaY, deltaX);
+                    handAngles.push(angleRad);
+                    if (i === 0) firstHandAnchor = { x: (1 - indexTip.x) * w, y: indexTip.y * h };
+                }
+            }
+            
+            // Étape 3: Appliquer le filtre
+            if (settings.isFilterActive) {
+                filterFunctions[settings.selectedFilter](results.multiHandLandmarks);
+            }
+            
+            if(isAudioInitialized) audioNodes.forEach(node => node.gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.02));
+
+            // Étape 4: Dessiner les interfaces (mains, visages)
+            canvasCtx.save();
+            canvasCtx.translate(w, 0);
+            canvasCtx.scale(-1, 1);
+
+            // Interface Visages
+            if (settings.isFaceDetectionActive && lastFaceResults && lastFaceResults.detections) {
+                drawFaceDetections(lastFaceResults.detections, w, h);
+            }
+
+            // Interface Mains
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                    const value = handValues[i];
+                    const angleRad = handAngles[i];
+                    const lastValue = lastHandValues[i] || value;
+                    const velocity = Math.abs(value - lastValue);
+                    if (velocity > 15) {
+                        audioStates[i].state = 'attacking';
+                        audioStates[i].peak = mapValue(velocity, 15, 300, 0.2, 1.0);
+                    }
+                    lastHandValues[i] = value;
+                    updateAudio(i, audioStates[i].value, angleRad);
+                    
+                    drawHandSkeleton(results.multiHandLandmarks[i], w, h);
+                    drawHandUI(results.multiHandLandmarks[i], value, angleRad, w, h, i);
+                }
+                if (results.multiHandLandmarks.length < lastHandValues.length) {
+                    lastHandValues.length = results.multiHandLandmarks.length;
+                }
+            }
+            canvasCtx.restore();
+            
+            // Ligne entre les deux premières mains
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length >= 2) {
+                const wrist1 = results.multiHandLandmarks[0][0];
+                const wrist2 = results.multiHandLandmarks[1][0];
+                const pos1 = { x: (1 - wrist1.x) * w, y: wrist1.y * h };
+                const pos2 = { x: (1 - wrist2.x) * w, y: wrist2.y * h };
+
+                canvasCtx.strokeStyle = '#00FF00';
+                canvasCtx.lineWidth = 1;
+                canvasCtx.setLineDash([2, 3]);
+                canvasCtx.beginPath();
+                canvasCtx.moveTo(pos1.x, pos1.y);
+                canvasCtx.lineTo(pos2.x, pos2.y);
+                canvasCtx.stroke();
+                canvasCtx.setLineDash([]);
+            }
+            
+            // NOUVEAU: Lignes dynamiques entre le visage et les mains
+            if (settings.isFaceDetectionActive && lastFaceResults && lastFaceResults.detections.length > 0 && results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const faceBox = lastFaceResults.detections[0].boundingBox;
+                // Coordonnées non-inversées (coordonnées de la source vidéo)
+                const faceAnchorLeft_raw = { x: (faceBox.xCenter - faceBox.width / 2) * w, y: faceBox.yCenter * h };
+                const faceAnchorRight_raw = { x: (faceBox.xCenter + faceBox.width / 2) * w, y: faceBox.yCenter * h };
+
+                // Coordonnées des mains non-inversées
+                const handsPos_raw = results.multiHandLandmarks.map(landmarks => ({ x: landmarks[0].x * w, y: landmarks[0].y * h }));
+
+                // Coordonnées inversées pour l'affichage
+                const faceAnchorLeft = { x: w - faceAnchorLeft_raw.x, y: faceAnchorLeft_raw.y };
+                const faceAnchorRight = { x: w - faceAnchorRight_raw.x, y: faceAnchorRight_raw.y };
+                const handsPos = handsPos_raw.map(pos => ({ x: w - pos.x, y: pos.y }));
+                
+                canvasCtx.strokeStyle = '#FFFFFF';
+                canvasCtx.lineWidth = 1;
+                canvasCtx.setLineDash([2, 4]);
+
+                if (handsPos.length === 1) {
+                    const hand = handsPos[0];
+                    const distToLeft = Math.hypot(hand.x - faceAnchorLeft.x, hand.y - faceAnchorLeft.y);
+                    const distToRight = Math.hypot(hand.x - faceAnchorRight.x, hand.y - faceAnchorRight.y);
+                    const startPoint = distToLeft < distToRight ? faceAnchorLeft : faceAnchorRight;
+                    
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(startPoint.x, startPoint.y);
+                    canvasCtx.lineTo(hand.x, hand.y);
+                    canvasCtx.stroke();
+                } else if (handsPos.length >= 2) {
+                    const hand1 = handsPos[0];
+                    const hand2 = handsPos[1];
+
+                    const dist1ToLeft = Math.hypot(hand1.x - faceAnchorLeft.x, hand1.y - faceAnchorLeft.y);
+                    const dist2ToLeft = Math.hypot(hand2.x - faceAnchorLeft.x, hand2.y - faceAnchorLeft.y);
+                    
+                    const leftHand = dist1ToLeft < dist2ToLeft ? hand1 : hand2;
+                    const rightHand = (leftHand === hand1) ? hand2 : hand1;
+
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(faceAnchorLeft.x, faceAnchorLeft.y);
+                    canvasCtx.lineTo(leftHand.x, leftHand.y);
+                    canvasCtx.stroke();
+                    
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(faceAnchorRight.x, faceAnchorRight.y);
+                    canvasCtx.lineTo(rightHand.x, rightHand.y);
+                    canvasCtx.stroke();
+                }
+                canvasCtx.setLineDash([]);
+            }
+
+            // Étape 5: Afficher les messages textuels
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                canvasCtx.fillStyle = '#00FF00';
+                canvasCtx.font = '15px "Press Start 2P"';
+                canvasCtx.textAlign = 'center';
+                canvasCtx.textBaseline = 'bottom';
+                canvasCtx.fillText("HAND CONNECTION ESTABLISHED", w / 2, h - 20);
+            } else {
+                const time = performance.now() / 1000, blinkSpeed = 0.5;
+                const opacity = (Math.sin(time * 2 * Math.PI * blinkSpeed) + 1) / 2;
+                canvasCtx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
+                canvasCtx.font = '35px "Press Start 2P"';
+                canvasCtx.textAlign = 'center';
+                canvasCtx.textBaseline = 'middle';
+                canvasCtx.fillText("SHOW ME YOUR HANDS", w / 2, h / 2);
+            }
+            
+            // Étape 6: Dessiner les éléments additionnels (gadget, jeu)
+            if (settings.isGadgetActive && firstHandAnchor) updateAndDrawElasticGadget(firstHandAnchor);
+            if (isGameRunning) { updateGame(w, h); drawGameElements(); }
+        }
+
+        function drawFaceDetections(detections, w, h) {
+            detections.forEach((detection, i) => {
+                const box = detection.boundingBox;
+                const topLeftX = box.xCenter * w - box.width * w / 2;
+                const topLeftY = box.yCenter * h - box.height * h / 2;
+                const boxWidth = box.width * w;
+                const boxHeight = box.height * h;
+
+                // --- Dessiner le rectangle en pointillé blanc ---
+                canvasCtx.strokeStyle = '#FFFFFF';
+                canvasCtx.lineWidth = 1;
+                canvasCtx.setLineDash([10, 4]);
+                canvasCtx.strokeRect(topLeftX, topLeftY, boxWidth, boxHeight);
+                canvasCtx.setLineDash([]);
+
+                // --- Dessiner le carré vert intérieur ---
+                const innerSquareSize = boxWidth * 0.15;
+                const innerSquareX = topLeftX + (boxWidth - innerSquareSize) / 2;
+                const innerSquareY = topLeftY + (boxHeight - innerSquareSize) / 2;
+                canvasCtx.strokeStyle = '#00FF00';
+                canvasCtx.lineWidth = 1;
+                canvasCtx.strokeRect(innerSquareX, innerSquareY, innerSquareSize, innerSquareSize);
+
+                // --- Dessiner les points clés en contour vert ---
+                for (const landmark of detection.landmarks) {
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(landmark.x * w, landmark.y * h, 5, 0, 2 * Math.PI);
+                    canvasCtx.stroke();
+                }
+
+                // --- Dessiner les lignes de connexion ---
+                if (detection.landmarks.length >= 6) {
+                    const leftEye = detection.landmarks[0], rightEye = detection.landmarks[1];
+                    const noseTip = detection.landmarks[2], mouth = detection.landmarks[3];
+                    const leftEar = detection.landmarks[4], rightEar = detection.landmarks[5];
+
+                    canvasCtx.strokeStyle = '#00FF00';
+                    canvasCtx.lineWidth = 1;
+                    canvasCtx.setLineDash([2, 3]);
+
+                    // Ligne entre les yeux
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(leftEye.x * w, leftEye.y * h);
+                    canvasCtx.lineTo(rightEye.x * w, rightEye.y * h);
+                    canvasCtx.stroke();
+
+                    // Ligne entre les oreilles
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(leftEar.x * w, leftEar.y * h);
+                    canvasCtx.lineTo(rightEar.x * w, rightEar.y * h);
+                    canvasCtx.stroke();
+
+                    // Ligne du nez à la bouche
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(noseTip.x * w, noseTip.y * h);
+                    canvasCtx.lineTo(mouth.x * w, mouth.y * h);
+                    canvasCtx.stroke();
+                    
+                    // Lignes des yeux à la bouche
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(leftEye.x * w, leftEye.y * h);
+                    canvasCtx.lineTo(mouth.x * w, mouth.y * h);
+                    canvasCtx.stroke();
+
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(rightEye.x * w, rightEye.y * h);
+                    canvasCtx.lineTo(mouth.x * w, mouth.y * h);
+                    canvasCtx.stroke();
+
+                    canvasCtx.setLineDash([]);
+                }
+
+                // --- Aligner "HUMAN 0X" à droite ---
+                const text_human = `HUMAN ${String(i + 1).padStart(2, '0')}`;
+                const text_human_X = topLeftX + boxWidth; 
+                const text_human_Y = topLeftY - 5;
+
+                canvasCtx.save();
+                canvasCtx.translate(text_human_X, text_human_Y);
+                canvasCtx.scale(-1, 1); 
+                canvasCtx.fillStyle = '#00FF00';
+                canvasCtx.font = '10px "Press Start 2P"';
+                canvasCtx.textAlign = 'right'; 
+                canvasCtx.textBaseline = 'bottom';
+                canvasCtx.fillText(text_human, 0, 0);
+                canvasCtx.restore();
+                
+                // --- Ajouter "face connection established" en dessous ---
+                const text_connection = "face connection established";
+                const text_connection_X = topLeftX + boxWidth; 
+                const text_connection_Y = topLeftY + boxHeight + 5;
+
+                canvasCtx.save();
+                canvasCtx.translate(text_connection_X, text_connection_Y);
+                canvasCtx.scale(-1, 1); 
+                canvasCtx.fillStyle = '#00FF00';
+                canvasCtx.font = '6px "Press Start 2P"';
+                canvasCtx.textAlign = 'right'; 
+                canvasCtx.textBaseline = 'top'; 
+                canvasCtx.fillText(text_connection, 0, 0);
+                canvasCtx.restore();
+            });
+        }
+        
+        function drawHandSkeleton(landmarks, w, h) {
+            const FINGER_TIPS_INDICES = [4, 8, 12, 16, 20];
+            drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#FFFFFF', lineWidth: 1 });
+            canvasCtx.strokeStyle = '#FFFFFF';
+            canvasCtx.lineWidth = 1;
+            for (let i = 0; i < landmarks.length; i++) {
+                if (FINGER_TIPS_INDICES.includes(i)) continue;
+                const landmark = landmarks[i];
+                canvasCtx.beginPath();
+                canvasCtx.arc(landmark.x * w, landmark.y * h, 5, 0, 2 * Math.PI);
+                canvasCtx.stroke();
+            }
+        }
+        
+        function drawHandUI(landmarks, value, angleRad, w, h, handIndex) {
+            const FINGER_TIPS_INDICES = [4, 8, 12, 16, 20];
+            const squareSize = 24;
+            const circleDiameter = 45;
+            const circleRadius = circleDiameter / 2;
+
+            for (let i = 0; i < FINGER_TIPS_INDICES.length; i++) {
+                const landmark = landmarks[FINGER_TIPS_INDICES[i]];
+                const x = landmark.x * w, y = landmark.y * h;
+                
+                canvasCtx.strokeStyle = '#00FF00';
+                canvasCtx.lineWidth = 1;
+                
+                canvasCtx.save();
+                canvasCtx.translate(x, y);
+                canvasCtx.rotate(fingertipOrbitalAngle);
+                canvasCtx.beginPath();
+                canvasCtx.setLineDash([1, 3]);
+                canvasCtx.arc(0, 0, circleRadius, 0, 2 * Math.PI);
+                canvasCtx.stroke();
+                canvasCtx.restore();
+
+                canvasCtx.strokeRect(x - squareSize / 2, y - squareSize / 2, squareSize, squareSize);
+                
+                const number = String(i + 1).padStart(2, '0'), textX = x + 32, textY = y;
+                canvasCtx.save();
+                canvasCtx.translate(textX, textY); canvasCtx.scale(-1, 1);
+                canvasCtx.fillStyle = '#00FF00'; canvasCtx.font = '8px "Press Start 2P"';
+                canvasCtx.textAlign = 'right'; canvasCtx.textBaseline = 'middle';
+                canvasCtx.fillText(number, 0, 0); canvasCtx.restore();
+            }
+
+            const thumbTip = landmarks[4], indexTip = landmarks[8];
+            const thumbPos = { x: thumbTip.x * w, y: thumbTip.y * h }, indexPos = { x: indexTip.x * w, y: indexTip.y * h };
+            canvasCtx.beginPath(); canvasCtx.moveTo(thumbPos.x, thumbPos.y); canvasCtx.lineTo(indexPos.x, indexPos.y);
+            canvasCtx.strokeStyle = '#FFFFFF'; canvasCtx.lineWidth = 1; canvasCtx.setLineDash([4, 4]); canvasCtx.stroke(); canvasCtx.setLineDash([]);
+            const midPoint = { x: (thumbPos.x + indexPos.x) / 2, y: (thumbPos.y + indexPos.y) / 2 };
+            canvasCtx.save();
+            canvasCtx.translate(midPoint.x, midPoint.y); canvasCtx.scale(-1, 1);
+            canvasCtx.fillStyle = '#FFFFFF'; canvasCtx.font = '12px "Press Start 2P"';
+            canvasCtx.textAlign = 'center'; canvasCtx.textBaseline = 'middle';
+            canvasCtx.fillText(`${Math.round(angleRad * 180 / Math.PI)}°`, 0, -30);
+            canvasCtx.fillText(value, 0, -15); canvasCtx.restore();
+            
+            // Inscription "HAND_0X" à la base de la main
+            const wrist = landmarks[0];
+            const wristPos = { x: wrist.x * w, y: wrist.y * h };
+            const handLabel = `HAND_${String(handIndex + 1).padStart(2, '0')}`;
+            const textX_wrist = wristPos.x + 32;
+            const textY_wrist = wristPos.y;
+
+            canvasCtx.save();
+            canvasCtx.translate(textX_wrist, textY_wrist);
+            canvasCtx.scale(-1, 1);
+            canvasCtx.fillStyle = '#00FF00';
+            canvasCtx.font = '8px "Press Start 2P"';
+            canvasCtx.textAlign = 'right';
+            canvasCtx.textBaseline = 'middle';
+            canvasCtx.fillText(handLabel, 0, 0);
+            canvasCtx.restore();
+        }
+
+        // --- SECTION AUDIO ---
+        function updateAudio(index, envelopeValue, angleRad) {
+            if (isAudioInitialized && audioNodes[index]) {
+                const frequency = mapValue(envelopeValue, 0, 1, 80, 750);
+                const rotationEffect = Math.abs(Math.sin(angleRad));
+                const node = audioNodes[index];
+                if (node.type === 'simple') {
+                    const lfoRate = rotationEffect * 10;
+                    node.lfo.frequency.setTargetAtTime(lfoRate, audioCtx.currentTime, 0.05);
+                    node.osc.frequency.setTargetAtTime(frequency, audioCtx.currentTime, 0.05);
+                } else if (node.type === 'fm') {
+                    const fmAmount = 50 + rotationEffect * 250;
+                    node.modulatorGain.gain.setTargetAtTime(fmAmount, audioCtx.currentTime, 0.05);
+                    node.carrier.frequency.setTargetAtTime(frequency, audioCtx.currentTime, 0.05);
+                    node.modulator.frequency.setTargetAtTime(frequency * 1.5, audioCtx.currentTime, 0.05);
+                }
+                node.gain.gain.setTargetAtTime(settings.globalVolume, audioCtx.currentTime, 0.02);
+            }
+        }
+        async function createReverb(audioContext) { const convolver = audioContext.createConvolver(); const sampleRate = audioContext.sampleRate; const duration = 0.8; const decay = 2.0; const impulse = audioContext.createBuffer(2, duration * sampleRate, sampleRate); for (let i = 0; i < 2; i++) { const channel = impulse.getChannelData(i); for (let j = 0; j < impulse.length; j++) { channel[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / impulse.length, decay); } } convolver.buffer = impulse; return convolver; }
+        async function initAudio() { if (isAudioInitialized) return; audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const reverbNode = await createReverb(audioCtx); reverbNode.connect(audioCtx.destination); for (let i = 0; i < 4; i++) { const gainNode = audioCtx.createGain(); gainNode.gain.setValueAtTime(0, audioCtx.currentTime); gainNode.connect(reverbNode); if (i === 0) { const osc = audioCtx.createOscillator(), lfo = audioCtx.createOscillator(), lfoGain = audioCtx.createGain(); lfo.type = 'sine'; lfo.frequency.value = 0; lfoGain.gain.value = 10; lfo.connect(lfoGain).connect(osc.frequency); osc.type = 'sine'; osc.frequency.value = 100; osc.connect(gainNode); lfo.start(); osc.start(); audioNodes.push({ type: 'simple', osc, lfo, gain: gainNode }); } else { const carrier = audioCtx.createOscillator(), modulator = audioCtx.createOscillator(), modulatorGain = audioCtx.createGain(); carrier.type = 'sine'; modulator.type = 'sine'; modulator.connect(modulatorGain).connect(carrier.frequency); carrier.connect(gainNode); carrier.frequency.value = 100; modulator.frequency.value = 150; modulatorGain.gain.value = 50; carrier.start(); modulator.start(); audioNodes.push({ type: 'fm', carrier, modulator, modulatorGain, gain: gainNode }); } } isAudioInitialized = true; }
+        
+        // --- SECTION DU JEU ---
+        function startGame() { 
+            if (!isAudioInitialized) initAudio(); 
+            guiElement.style.display = 'none'; 
+            startGameButton.style.display = 'none'; 
+            document.getElementById('volume_control').style.display = 'none'; 
+            titleLink.style.display = 'none';
+            gameUiElement.style.display = 'block'; 
+            let count = 3; 
+            countdownElement.textContent = count; 
+            countdownInterval = setInterval(() => { 
+                count--; 
+                if (count > 0) { 
+                    countdownElement.textContent = count; 
+                } else { 
+                    countdownElement.textContent = 'GO!'; 
+                    setTimeout(() => { 
+                        countdownElement.textContent = ''; 
+                        beginGameplay(); 
+                    }, 1000); 
+                    clearInterval(countdownInterval); 
+                } 
+            }, 1000); 
+        }
+        function beginGameplay() { isGameRunning = true; score = 0; timeLeft = 60; scoreElement.textContent = 'Score: 0'; timerElement.textContent = 'Time: 60'; generateNewTarget(); gameInterval = setInterval(() => { timeLeft--; timerElement.textContent = `Time: ${timeLeft}`; if (timeLeft <= 0) { endGame(); } }, 1000); }
+        function endGame() { 
+            clearInterval(gameInterval); 
+            isGameRunning = false; 
+            countdownElement.textContent = `Final Score: ${score}`; 
+            setTimeout(() => { 
+                gameUiElement.style.display = 'none'; 
+                countdownElement.textContent = ''; 
+                startGameButton.style.display = 'block'; 
+                guiElement.style.display = 'block'; 
+                document.getElementById('volume_control').style.display = 'flex'; 
+                titleLink.style.display = 'block';
+            }, 7000); 
+        }
+        function mapValue(value, in_min, in_max, out_min, out_max) { const clampedValue = Math.max(in_min, Math.min(value, in_max)); return (clampedValue - in_min) * (out_max - out_min) / (in_max - in_min) + out_min; }
+        function updateGame(w, h) { if (handValues[0] !== undefined) { player.x = w - mapValue(handValues[0], 100, 750, 0, w - player.size); } if (handValues[1] !== undefined) { player.y = mapValue(handValues[1], 100, 750, 0, h - player.size); } if (player.x > target.x && player.x + player.size < target.x + target.size && player.y > target.y && player.y + player.size < target.y + target.size) { score += 100; scoreElement.textContent = `Score: ${score}`; generateNewTarget(); } }
+        function drawGameElements() { canvasCtx.fillStyle = 'rgba(0, 150, 255, 0.8)'; canvasCtx.strokeStyle = '#00f'; canvasCtx.lineWidth = 3; canvasCtx.fillRect(target.x, target.y, target.size, target.size); canvasCtx.strokeRect(target.x, target.y, target.size, target.size); canvasCtx.fillStyle = 'rgba(255, 50, 50, 0.9)'; canvasCtx.strokeStyle = '#f00'; canvasCtx.lineWidth = 3; canvasCtx.fillRect(player.x, player.y, player.size, player.size); canvasCtx.strokeRect(player.x, player.y, player.size, player.size); }
+        function generateNewTarget() { const margin = 20; target.x = Math.random() * (canvasElement.width - target.size - margin * 2) + margin; target.y = Math.random() * (canvasElement.height - target.size - margin * 2) + margin; }
+
+        // --- FILTRES ET GADGET AMÉLIORÉ ---
+        function updateAndDrawElasticGadget(anchor) {
+            const dx = anchor.x - gadget.x, dy = anchor.y - gadget.y;
+            gadget.vx += dx * stiffness; gadget.vy += dy * stiffness;
+            gadget.vx *= damping; gadget.vy *= damping;
+            gadget.x += gadget.vx; gadget.y += gadget.vy;
+            const lineLength = Math.hypot(dx, dy);
+            const maxLineLength = 500;
+            const rotationSpeed = mapValue(lineLength, 0, maxLineLength, 0, 0.5);
+            gadget.rotationAngle += rotationSpeed;
+            const dynamicRadius = mapValue(lineLength, 0, maxLineLength, 25, 50);
+            canvasCtx.beginPath(); canvasCtx.moveTo(anchor.x, anchor.y); canvasCtx.lineTo(gadget.x, gadget.y);
+            canvasCtx.strokeStyle = '#00FF00'; canvasCtx.lineWidth = 1; canvasCtx.stroke();
+            canvasCtx.beginPath(); canvasCtx.arc(gadget.x, gadget.y, gadget.radius, 0, 2 * Math.PI);
+            canvasCtx.strokeStyle = '#FFFFFF'; canvasCtx.lineWidth = 2; canvasCtx.stroke();
+            canvasCtx.save();
+            canvasCtx.translate(gadget.x, gadget.y); canvasCtx.rotate(gadget.rotationAngle);
+            if (lineLength > maxLineLength - 5) {
+                const strobeColors = ['#ff0000', '#00ff00', '#0000ff'];
+                const colorIndex = Math.floor(performance.now() / 50) % 3;
+                const strobeColor = strobeColors[colorIndex];
+                canvasCtx.strokeStyle = strobeColor; canvasCtx.shadowColor = strobeColor; canvasCtx.shadowBlur = 15;
+            } else {
+                canvasCtx.strokeStyle = '#FFFFFF';
+            }
+            canvasCtx.lineWidth = 2; canvasCtx.setLineDash([2, 4]);
+            canvasCtx.beginPath();
+            canvasCtx.arc(0, 0, dynamicRadius, 0, 2 * Math.PI);
+            canvasCtx.stroke();
+            canvasCtx.restore();
+        }
+        function applyVirtualBoyFilter() {
+            const virtualBoyPalette = [[60, 0, 0], [120, 0, 0], [190, 0, 0], [255, 20, 20]];
+            const pixelationControl = handValues.length > 0 ? handValues[0] / 1000 : 0.5;
+            const pixelSize = Math.max(8, Math.floor(20 - (pixelationControl * 12)));
+            const w = canvasElement.width, h = canvasElement.height;
+            const imageData = canvasCtx.getImageData(0, 0, w, h);
+            const data = imageData.data;
+            for (let y = 0; y < h; y += pixelSize) {
+                for (let x = 0; x < w; x += pixelSize) {
+                    const i = (y * w + x) * 4;
+                    const brightness = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                    let color;
+                    if (brightness < 64) color = virtualBoyPalette[0];
+                    else if (brightness < 128) color = virtualBoyPalette[1];
+                    else if (brightness < 192) color = virtualBoyPalette[2];
+                    else color = virtualBoyPalette[3];
+                    canvasCtx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                    canvasCtx.fillRect(x, y, pixelSize, pixelSize);
+                }
+            }
+        }
+        function applyDreamscapeEchoFilter() { const speedControl = handValues[0] / 1000 || 0; const feedbackControl = handValues[1] / 1000 || speedControl; const w = canvasElement.width, h = canvasElement.height; canvasCtx.save(); canvasCtx.globalAlpha = 0.1 + feedbackControl * 0.4; canvasCtx.translate(w / 2, h / 2); canvasCtx.scale(1.01 + speedControl * 0.02, 1.01 + speedControl * 0.02); canvasCtx.rotate(speedControl * 0.01); canvasCtx.translate(-w / 2, -h / 2); canvasCtx.drawImage(canvasElement, 0, 0); canvasCtx.restore(); }
+        function applyVoronoiShatterFilter(multiHandLandmarks) { if (!multiHandLandmarks) return; const glowControl = handValues[0] / 1000 || 0; const chaosControl = handValues[1] / 1000 || (handValues[0] / 1000) || 0; let points = []; multiHandLandmarks.forEach(landmarks => { landmarks.forEach(lm => points.push({x: (1-lm.x) * canvasElement.width, y: lm.y * canvasElement.height})); }); if (points.length < 3) return; const imageData = canvasCtx.getImageData(0,0,canvasElement.width,canvasElement.height); canvasCtx.fillStyle = '#000'; canvasCtx.fillRect(0,0,canvasElement.width,canvasElement.height); points.forEach(p => { p.x += (Math.random() - 0.5) * chaosControl * 20; p.y += (Math.random() - 0.5) * chaosControl * 20; }); for(let i=0; i<points.length; i++) { let neighbors = findNearest(points[i], points, 3); canvasCtx.beginPath(); canvasCtx.moveTo(neighbors[0].x, neighbors[0].y); canvasCtx.lineTo(neighbors[1].x, neighbors[1].y); canvasCtx.lineTo(neighbors[2].x, neighbors[2].y); canvasCtx.closePath(); const avgX = Math.floor((neighbors[0].x + neighbors[1].x + neighbors[2].x) / 3); const avgY = Math.floor((neighbors[0].y + neighbors[1].y + neighbors[2].y) / 3); const pixelIndex = (avgY * canvasElement.width + avgX) * 4; const r = imageData.data[pixelIndex], g = imageData.data[pixelIndex+1], b = imageData.data[pixelIndex+2]; canvasCtx.fillStyle = `rgb(${r},${g},${b})`; canvasCtx.fill(); canvasCtx.strokeStyle = `rgba(255,255,255,${glowControl})`; canvasCtx.lineWidth = glowControl * 3; canvasCtx.stroke(); } }
+        function findNearest(point, points, n) { return [...points].sort((a,b) => Math.hypot(point.x-a.x, point.y-a.y) - Math.hypot(point.x-b.x, point.y-b.y)).slice(1, n+1); }
+        function applyBinaryMatrixFilter() { const speedControl = handValues[0] / 1000 || 0; const densityControl = handValues[1] / 1000 || speedControl || 0.5; canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.08)'; canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height); canvasCtx.font = '14px "Press Start 2P"'; canvasCtx.fillStyle = `hsl(120, 100%, 50%)`; for (let drop of matrixDrops) { if (Math.random() < densityControl) canvasCtx.fillText(Math.random() < 0.5 ? '0' : '1', drop.x, drop.y); drop.y += drop.speed + (speedControl * 30); if (drop.y > canvasElement.height && Math.random() > 0.975) drop.y = 0; } }
+        function setupMatrix() { const fontSize = 14; const columnCount = Math.floor(canvasElement.width / (fontSize / 2)); matrixDrops = []; for (let i = 0; i < columnCount; i++) { matrixDrops.push({ x: i * (fontSize / 2), y: Math.random() * canvasElement.height, speed: Math.random() * 2 + 1 }); } }
+        function applyHoloScanFilter() { const positionControl = handValues[0] / 1000 || 0; const intensityControl = handValues[1] / 1000 || positionControl; const scanY = positionControl * canvasElement.height; canvasCtx.fillStyle = `rgba(0, 255, 255, ${0.4 + 0.4 * intensityControl})`; canvasCtx.shadowColor = 'cyan'; canvasCtx.shadowBlur = 30 * intensityControl; canvasCtx.fillRect(0, scanY - 2, canvasElement.width, 4); canvasCtx.shadowBlur = 0; const sliceHeight = 10 + 20 * intensityControl; const yOffset = (Math.random() - 0.5) * 15 * intensityControl; canvasCtx.drawImage(canvasElement, 0, scanY - sliceHeight / 2, canvasElement.width, sliceHeight, yOffset, scanY - sliceHeight / 2, canvasElement.width, sliceHeight); }
+        function applyDataBleedFilter() { const thresholdControl = handValues[0] / 1000 || 0.5; const lengthControl = handValues[1] / 1000 || thresholdControl; const angle = handAngles[0] || Math.PI / 2; const dx = Math.cos(angle); const dy = Math.sin(angle); const chaosFactor = handAngles[1] ? Math.abs(Math.sin(handAngles[1])) * 20 : 0; const imageData = canvasCtx.getImageData(0, 0, canvasElement.width, canvasElement.height); const data = imageData.data; const threshold = thresholdControl * 255; const maxLength = lengthControl * 50; for (let x = 0; x < canvasElement.width; x += 4) { for (let y = 0; y < canvasElement.height; y += 4) { const i = (y * canvasElement.width + x) * 4; if (((data[i] + data[i+1] + data[i+2]) / 3) > threshold) { for (let l = 1; l < maxLength; l += 2) { const bleedX = Math.round(x + l * dx + (Math.random() - 0.5) * chaosFactor); const bleedY = Math.round(y + l * dy); if (bleedX >= 0 && bleedX < canvasElement.width && bleedY >= 0 && bleedY < canvasElement.height) { const j = (bleedY * canvasElement.width + bleedX) * 4; data[j] = data[i]; data[j+1] = data[i+1]; data[j+2] = data[i+2]; } } } } } canvasCtx.putImageData(imageData, 0, 0); }
+        function applyAsciiFilter() { const densityControl = handValues.length > 0 ? handValues[0] / 1000 : 0; const chars = " .:-=+r*#Ze%@"; const resolution = Math.max(6, Math.floor(20 - (densityControl * 14))); const imageData = canvasCtx.getImageData(0, 0, canvasElement.width, canvasElement.height); const data = imageData.data; canvasCtx.fillStyle = '#000000'; canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height); canvasCtx.fillStyle = `hsl(0, 100%, 50%)`; canvasCtx.font = `${resolution}px "Press Start 2P"`; for (let y = 0; y < canvasElement.height; y += resolution) { for (let x = 0; x < canvasElement.width; x += resolution) { const i = (y * canvasElement.width + x) * 4; const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3; const charIndex = Math.floor((brightness / 255) * (chars.length - 1)); canvasCtx.fillText(chars[charIndex], x, y); } } }
+        function applyNeuralNetworkFilter() { const densityControl = handValues[0]/1000||0; const glowControl = handValues[1]/1000||(handValues[0]/1000)||0; const resolution = Math.max(10, Math.floor(40 - (densityControl*30))); const connectionDistance = resolution * 1.5; const imageData = canvasCtx.getImageData(0,0,canvasElement.width,canvasElement.height); const data = imageData.data; canvasCtx.fillStyle = '#000'; canvasCtx.fillRect(0,0,canvasElement.width,canvasElement.height); const cols = Math.ceil(canvasElement.width/connectionDistance), rows = Math.ceil(canvasElement.height/connectionDistance); const grid = Array.from({length:rows},()=>Array.from({length:cols},()=>[])); for(let y=0; y<canvasElement.height; y+=resolution){for(let x=0; x<canvasElement.width; x+=resolution){const i = (y*canvasElement.width+x)*4; const brightness = (data[i]+data[i+1]+data[i+2])/3; if(brightness > 50){const node = {x,y,brightness}; const gx = Math.floor(x/connectionDistance), gy = Math.floor(y/connectionDistance); if(grid[gy] && grid[gy][gx]) grid[gy][gx].push(node);}}} canvasCtx.strokeStyle = `rgba(0,255,150,${glowControl*0.5})`; canvasCtx.lineWidth = 0.5; for(let gy=0; gy<rows; gy++){for(let gx=0; gx<cols; gx++){for(const node of grid[gy][gx]){canvasCtx.beginPath(); canvasCtx.arc(node.x,node.y,1,0,Math.PI*2); canvasCtx.fillStyle = `rgba(255,255,255,${node.brightness/255})`; canvasCtx.fill(); for(let ny=-1; ny<=1; ny++){for(let nx=-1; nx<=1; nx++){if(grid[gy+ny] && grid[gy+ny][gx+nx]){for(const neighbor of grid[gy+ny][gx+nx]){if(node === neighbor) continue; if(Math.hypot(node.x-neighbor.x,node.y-neighbor.y) < connectionDistance && Math.random() > 0.5){canvasCtx.beginPath(); canvasCtx.moveTo(node.x,node.y); canvasCtx.lineTo(neighbor.x,neighbor.y); canvasCtx.stroke();}}}}}}}} }
+        
+        const filterFunctions = { 'matrix': applyBinaryMatrixFilter, 'holo': applyHoloScanFilter, 'bleed': applyDataBleedFilter, 'ascii': applyAsciiFilter, 'neural': applyNeuralNetworkFilter, 'dreamscape': applyDreamscapeEchoFilter, 'voronoi': applyVoronoiShatterFilter, 'virtualboy': applyVirtualBoyFilter };
+
+        // --- SECTION DE CONFIGURATION ET ÉVÉNEMENTS ---
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await hands.send({ image: videoElement });
+                if (settings.isFaceDetectionActive) {
+                    await faceDetection.send({ image: videoElement });
+                }
+            },
+            width: window.innerWidth,
+            height: window.innerHeight
+        });
+        camera.start();
+
+        function resizeCanvas() { canvasElement.width = videoElement.videoWidth; canvasElement.height = videoElement.videoHeight; if(matrixDrops.length === 0 && videoElement.videoWidth > 0) setupMatrix(); }
+        videoElement.addEventListener('loadeddata', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
+        maxNumHandsSlider.addEventListener('input', (e) => { settings.maxNumHands = parseFloat(e.target.value); hands.setOptions({ maxNumHands: settings.maxNumHands }); });
+        filterSelect.addEventListener('change', (e) => { settings.selectedFilter = e.target.value; });
+        filterCheckbox.addEventListener('change', (e) => { settings.isFilterActive = e.target.checked; });
+        elasticGadgetCheckbox.addEventListener('change', (e) => { settings.isGadgetActive = e.target.checked; });
+        faceDetectionCheckbox.addEventListener('change', (e) => { settings.isFaceDetectionActive = e.target.checked; });
+        volumeSlider.addEventListener('input', (e) => { settings.globalVolume = parseFloat(e.target.value); });
+        resetButton.addEventListener('click', () => {
+            maxNumHandsSlider.value = 2; filterSelect.value = 'ascii'; filterCheckbox.checked = false;
+            elasticGadgetCheckbox.checked = false; faceDetectionCheckbox.checked = false;
+            settings.maxNumHands = 2; settings.selectedFilter = 'ascii'; settings.isFilterActive = false;
+            settings.isGadgetActive = false; settings.isFaceDetectionActive = false;
+            initializeGadget(); initializeHands();
+        });
+        startGameButton.addEventListener('click', startGame);
+        document.addEventListener('keydown', (event) => { if (event.key.toLowerCase() === 'p') { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } });
+        navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => { videoElement.srcObject = stream; }).catch((err) => { console.error("Erreur d'accès à la webcam: " + err); alert("Impossible d'accéder à la webcam."); });
+
+        // --- Initialisation au démarrage ---
+        initializeGadget();
+        initializeHands();
+        initializeFaceDetection();
+    </script>
+</body>
+</html>
