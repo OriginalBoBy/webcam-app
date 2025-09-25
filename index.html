@@ -279,40 +279,49 @@
             box-shadow: 0 0 10px #0f0;
         }
         
-        /* -- MODIFIED STYLE FOR 6-COLUMN LAYOUT -- */
+        /* -- NOUVEAU STYLE RESPONSIVE POUR LE MENU DE FILTRES -- */
         #filter_selection_menu {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            /* Le menu prend tout l'écran avec une marge de 150px */
+            top: 150px;
+            right: 150px;
+            bottom: 150px;
+            left: 150px;
             z-index: 24;
-            display: flex;
-            flex-direction: row; /* Aligne les boutons horizontalement */
-            flex-wrap: wrap; /* Permet aux boutons de passer à la ligne */
-            justify-content: center; /* Centre les boutons sur une ligne (utile pour la dernière ligne) */
+            
+            /* Utilisation de CSS Grid pour un layout intelligent */
+            display: grid;
+            /* Crée autant de colonnes que possible avec une taille min/max */
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            /* Les rangées ont une hauteur minimale mais peuvent grandir */
+            grid-auto-rows: minmax(50px, auto);
             gap: 10px;
             padding: 20px;
+            
             background-color: rgba(0, 15, 0, 0.85);
             border: 2px solid #0f0;
             border-radius: 5px;
-            /* Largeur calculée pour 6 boutons de 150px + 5 espaces de 10px + padding de 20px de chaque côté */
-            width: calc( (150px * 6) + (10px * 5) + (20px * 2) ); 
+            overflow-y: auto; /* Ajoute un scroll si le contenu dépasse */
         }
 
         #filter_selection_menu button {
-            width: 150px;
-            height: 50px;
+            /* Les boutons n'ont plus de taille fixe, ils remplissent la cellule de la grille */
+            width: 100%;
+            height: 100%;
+            padding: 5px;
             background-color: transparent;
             color: #0f0;
             border: 1px solid #0f0;
             font-family: "Press Start 2P", monospace;
-            font-size: 7px;
+            /* La taille de la police s'adapte à la taille de l'écran */
+            font-size: clamp(7px, 1.1vw, 12px);
             cursor: pointer;
             transition: background-color 0.2s, color 0.2s;
             text-align: center;
             display: flex;
             justify-content: center;
             align-items: center;
+            word-break: break-word; /* Gère les noms de filtres longs */
         }
         #filter_selection_menu button:hover, #filter_selection_menu button.hovered {
             background-color: #0f0;
@@ -416,6 +425,11 @@
                 <label for="face_detection_active">Face Detection:</label>
                 <input type="checkbox" id="face_detection_active">
             </div>
+            <!-- NOUVEL ÉLÉMENT POUR LE PLEIN ÉCRAN -->
+            <div class="gui-item">
+                <label for="fullscreen_checkbox">Fullscreen:</label>
+                <input type="checkbox" id="fullscreen_checkbox">
+            </div>
             <button id="reset_button">Reset</button>
         </div>
         <div id="game_ui">
@@ -449,6 +463,7 @@
         const filterCheckbox = document.getElementById('filter_active');
         const filterSelect = document.getElementById('filter_select');
         const faceDetectionCheckbox = document.getElementById('face_detection_active');
+        const fullscreenCheckbox = document.getElementById('fullscreen_checkbox'); 
         const startGameButton = document.getElementById('start_game_button');
         const guiElement = document.getElementById('gui');
         const gameUiElement = document.getElementById('game_ui');
@@ -789,7 +804,6 @@
                     const thumbTip = landmarks[4], indexTip = landmarks[8];
                     const distance = Math.hypot((thumbTip.x - indexTip.x) * videoW, (thumbTip.y - indexTip.y) * videoH);
                     
-                    // MODIFICATION : La distance max est réduite à 22.5% de la largeur de la vidéo (au lieu de 40%)
                     const maxDist = 0.225 * videoW;
                     const minDist = 0.05 * videoW;
                     let value = distance > minDist ? Math.round(((distance - minDist) / (maxDist - minDist)) * 1000) : 0;
@@ -1028,6 +1042,31 @@
         filterCheckbox.addEventListener('change', (e) => { settings.isFilterActive = e.target.checked; });
         faceDetectionCheckbox.addEventListener('change', (e) => { settings.isFaceDetectionActive = e.target.checked; });
         volumeSlider.addEventListener('input', (e) => { settings.globalVolume = parseFloat(e.target.value); });
+        
+        fullscreenCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                }
+            } else {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+        document.addEventListener('fullscreenchange', () => {
+            fullscreenCheckbox.checked = !!document.fullscreenElement;
+        });
+        document.addEventListener('keydown', (event) => { 
+            if (event.key.toLowerCase() === 'p') { 
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
         resetButton.addEventListener('click', () => {
             maxNumHandsSlider.value = 2; filterSelect.value = 'ascii'; filterCheckbox.checked = false;
             faceDetectionCheckbox.checked = false;
@@ -1043,7 +1082,6 @@
             initializeHands();
         });
         startGameButton.addEventListener('click', startGame);
-        document.addEventListener('keydown', (event) => { if (event.key.toLowerCase() === 'p') { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } });
         
         function populateFilterMenu() {
             const options = filterSelect.options;
