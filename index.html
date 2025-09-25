@@ -279,33 +279,24 @@
             box-shadow: 0 0 10px #0f0;
         }
         
-        /* -- NOUVEAU STYLE RESPONSIVE POUR LE MENU DE FILTRES -- */
+        /* --- NOUVEAU STYLE DU MENU DE FILTRES --- */
         #filter_selection_menu {
             position: absolute;
-            /* Le menu prend tout l'écran avec une marge de 150px */
-            top: 150px;
-            right: 150px;
-            bottom: 150px;
-            left: 150px;
+            top: 40px;      /* Modifié */
+            right: 40px;    /* Modifié */
+            bottom: 40px;   /* Modifié */
+            left: 40px;     /* Modifié */
             z-index: 24;
-            
-            /* Utilisation de CSS Grid pour un layout intelligent */
             display: grid;
-            /* Crée autant de colonnes que possible avec une taille min/max */
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            /* Les rangées ont une hauteur minimale mais peuvent grandir */
-            grid-auto-rows: minmax(50px, auto);
             gap: 10px;
             padding: 20px;
-            
             background-color: rgba(0, 15, 0, 0.85);
             border: 2px solid #0f0;
             border-radius: 5px;
-            overflow-y: auto; /* Ajoute un scroll si le contenu dépasse */
+            /* Les propriétés de grille et d'overflow sont maintenant gérées en JS */
         }
 
         #filter_selection_menu button {
-            /* Les boutons n'ont plus de taille fixe, ils remplissent la cellule de la grille */
             width: 100%;
             height: 100%;
             padding: 5px;
@@ -313,7 +304,6 @@
             color: #0f0;
             border: 1px solid #0f0;
             font-family: "Press Start 2P", monospace;
-            /* La taille de la police s'adapte à la taille de l'écran */
             font-size: clamp(7px, 1.1vw, 12px);
             cursor: pointer;
             transition: background-color 0.2s, color 0.2s;
@@ -321,7 +311,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            word-break: break-word; /* Gère les noms de filtres longs */
+            word-break: break-word;
         }
         #filter_selection_menu button:hover, #filter_selection_menu button.hovered {
             background-color: #0f0;
@@ -330,7 +320,7 @@
 
         /* --- STYLE POUR LES CURSEURS DE MAIN --- */
         .hand-cursor {
-            display: none; /* Caché par défaut */
+            display: none;
             position: absolute;
             width: 15px;
             height: 15px;
@@ -338,9 +328,9 @@
             background-color: rgba(0, 255, 0, 0.3);
             border: 2px solid #0f0;
             box-shadow: 0 0 8px #0f0;
-            z-index: 26; /* Au-dessus du menu de filtres */
-            pointer-events: none; /* Très important: pour ne pas bloquer le survol des boutons */
-            transition: transform 0.1s ease-out; /* Pour un mouvement plus doux */
+            z-index: 26;
+            pointer-events: none;
+            transition: transform 0.1s ease-out;
         }
 
     </style>
@@ -358,13 +348,10 @@
         <video id="webcam" autoplay playsinline></video>
         <canvas id="output_canvas"></canvas>
 
-        <!-- NOUVEAUX ÉLÉMENTS D'INTERFACE -->
         <button id="mode_button">MODE</button>
         <div id="filter_selection_menu" class="hidden">
-            <!-- Les boutons de filtre seront injectés ici par JavaScript -->
         </div>
         
-        <!-- NOUVEAUX CURSEURS DE MAIN -->
         <div id="hand_cursor_1" class="hand-cursor"></div>
         <div id="hand_cursor_2" class="hand-cursor"></div>
 
@@ -425,7 +412,6 @@
                 <label for="face_detection_active">Face Detection:</label>
                 <input type="checkbox" id="face_detection_active">
             </div>
-            <!-- NOUVEL ÉLÉMENT POUR LE PLEIN ÉCRAN -->
             <div class="gui-item">
                 <label for="fullscreen_checkbox">Fullscreen:</label>
                 <input type="checkbox" id="fullscreen_checkbox">
@@ -512,7 +498,8 @@
         let dwellClickTarget = null;
         let dwellClickStartTime = 0;
         const DWELL_TIME_MS = 900;
-        let lastHoveredButton = null;
+        let previouslyHoveredButtons = new Set();
+        let numFilters = 0; // NOUVEAU: variable pour stocker le nombre de filtres
 
         // Variables pour les filtres
         let synapseParticles = [], traceWalkers = [], orbitalPhase = 0, glyphColumns = [];
@@ -615,47 +602,56 @@
         }
         
         function handleDwellClick(multiHandLandmarks, w, h) {
+            const menuIsVisible = !filterSelectionMenu.classList.contains('hidden');
             if (!multiHandLandmarks || multiHandLandmarks.length === 0) {
-                 if (lastHoveredButton) {
-                    lastHoveredButton.classList.remove('hovered');
-                    lastHoveredButton = null;
+                for (const btn of previouslyHoveredButtons) {
+                    btn.classList.remove('hovered');
                 }
+                previouslyHoveredButtons.clear();
                 dwellClickTarget = null;
                 return;
             }
 
             const clickableElements = [modeButton, ...filterSelectionMenu.querySelectorAll('button')];
-            let currentlyHoveredButton = null;
-            let activeHandLandmarks = null;
+            const currentlyHoveredButtons = new Set();
+            let primaryHoveredButton = null;
+            let primaryActiveHandLandmarks = null;
 
-            const allHoveredButtons = new Set();
             for (const landmarks of multiHandLandmarks) {
                 const indexTip = landmarks[8];
                 const tipX = (1 - indexTip.x) * w;
                 const tipY = indexTip.y * h;
 
                 for (const button of clickableElements) {
-                    if (button.parentElement.classList.contains('hidden') && button.id !== 'mode_button') continue;
+                    if (!menuIsVisible && button.id !== 'mode_button') continue;
+                    
                     const rect = button.getBoundingClientRect();
                     if (tipX > rect.left && tipX < rect.right && tipY > rect.top && tipY < rect.bottom) {
-                        allHoveredButtons.add(button);
-                        if (!currentlyHoveredButton) {
-                            currentlyHoveredButton = button;
-                            activeHandLandmarks = landmarks;
+                        currentlyHoveredButtons.add(button);
+                        if (!primaryHoveredButton) {
+                            primaryHoveredButton = button;
+                            primaryActiveHandLandmarks = landmarks;
                         }
                     }
                 }
             }
 
-            if (lastHoveredButton && !allHoveredButtons.has(lastHoveredButton)) {
-                lastHoveredButton.classList.remove('hovered');
+            for (const btn of previouslyHoveredButtons) {
+                if (!currentlyHoveredButtons.has(btn)) {
+                    btn.classList.remove('hovered');
+                }
             }
-            allHoveredButtons.forEach(button => button.classList.add('hovered'));
-            lastHoveredButton = currentlyHoveredButton;
+            for (const btn of currentlyHoveredButtons) {
+                if (!previouslyHoveredButtons.has(btn)) {
+                    btn.classList.add('hovered');
+                }
+            }
             
-            if (currentlyHoveredButton) {
-                if (currentlyHoveredButton !== dwellClickTarget) {
-                    dwellClickTarget = currentlyHoveredButton;
+            previouslyHoveredButtons = currentlyHoveredButtons;
+
+            if (primaryHoveredButton) {
+                if (primaryHoveredButton !== dwellClickTarget) {
+                    dwellClickTarget = primaryHoveredButton;
                     dwellClickStartTime = performance.now();
                 } else {
                     const elapsedTime = performance.now() - dwellClickStartTime;
@@ -663,7 +659,8 @@
                         dwellClickTarget.click();
                         dwellClickTarget = null; 
                         dwellClickStartTime = 0;
-                        if(lastHoveredButton) lastHoveredButton.classList.remove('hovered');
+                        previouslyHoveredButtons.forEach(b => b.classList.remove('hovered'));
+                        previouslyHoveredButtons.clear();
                     }
                 }
             } else {
@@ -671,10 +668,9 @@
                 dwellClickStartTime = 0;
             }
 
-            if (dwellClickTarget && activeHandLandmarks) {
+            if (dwellClickTarget && primaryActiveHandLandmarks) {
                 const elapsedTime = performance.now() - dwellClickStartTime;
                 const remainingTime = DWELL_TIME_MS - elapsedTime;
-                
                 let countdownNumber;
                 if (remainingTime > DWELL_TIME_MS * 0.75) { countdownNumber = 3; }
                 else if (remainingTime > DWELL_TIME_MS * 0.50) { countdownNumber = 2; }
@@ -682,7 +678,7 @@
                 else { countdownNumber = 0; }
 
                 if (remainingTime > 0) {
-                    const indexTip = activeHandLandmarks[8];
+                    const indexTip = primaryActiveHandLandmarks[8];
                     const tipX = (1 - indexTip.x) * w;
                     const tipY = indexTip.y * h;
                     canvasCtx.save();
@@ -698,11 +694,6 @@
             }
         }
 
-        /**
-         * Dessine la vidéo sur le canvas en conservant son ratio (effet "cover")
-         * et retourne les paramètres de transformation pour aligner les overlays.
-         * @returns {object|null} Un objet {sx, sy, sWidth, sHeight} ou null.
-         */
         function drawVideoWithCorrectAspectRatio() {
             const canvasW = canvasElement.width;
             const canvasH = canvasElement.height;
@@ -1017,6 +1008,43 @@
         // --- SECTION DE CONFIGURATION ET ÉVÉNEMENTS ---
         const camera = new Camera(videoElement, { onFrame: async () => { if (videoElement.readyState >= 2) { await hands.send({ image: videoElement }); if (settings.isFaceDetectionActive) { await faceDetection.send({ image: videoElement }); } } }, width: 1280, height: 720 });
         camera.start();
+        
+        // --- NOUVELLE FONCTION POUR METTRE À JOUR LA GRILLE DU MENU ---
+        function updateFilterMenuLayout() {
+            if (filterSelectionMenu.classList.contains('hidden') || numFilters === 0) return;
+
+            const menuStyle = getComputedStyle(filterSelectionMenu);
+            // On calcule l'espace disponible à l'intérieur du menu (après padding)
+            const availableWidth = filterSelectionMenu.clientWidth - parseInt(menuStyle.paddingLeft) - parseInt(menuStyle.paddingRight);
+            const availableHeight = filterSelectionMenu.clientHeight - parseInt(menuStyle.paddingTop) - parseInt(menuStyle.paddingBottom);
+            
+            let bestLayout = {
+                cols: 1,
+                rows: numFilters,
+                maxSize: 0 // On cherche à maximiser la plus petite dimension d'un bouton
+            };
+
+            // On teste toutes les configurations de colonnes possibles
+            for (let cols = 1; cols <= numFilters; cols++) {
+                const rows = Math.ceil(numFilters / cols);
+                const buttonWidth = availableWidth / cols;
+                const buttonHeight = availableHeight / rows;
+                // Le "score" est la taille minimale (largeur ou hauteur), pour éviter des boutons trop allongés
+                const potentialSize = Math.min(buttonWidth, buttonHeight);
+                
+                if (potentialSize > bestLayout.maxSize) {
+                    bestLayout = {
+                        cols: cols,
+                        rows: rows,
+                        maxSize: potentialSize
+                    };
+                }
+            }
+
+            // On applique la meilleure configuration trouvée directement au style de l'élément
+            filterSelectionMenu.style.gridTemplateColumns = `repeat(${bestLayout.cols}, 1fr)`;
+            filterSelectionMenu.style.gridTemplateRows = `repeat(${bestLayout.rows}, 1fr)`;
+        }
 
         function resizeCanvas() { 
             canvasElement.width = window.innerWidth; 
@@ -1032,6 +1060,8 @@
                 deJongState = {x: 0, y: 0}; cliffordState = {x: 0, y: 0}; hopalongState = {x: 0, y: 0};
                 hopalongLastResetTime = 0;
             }
+            // On met à jour la disposition du menu à chaque redimensionnement
+            updateFilterMenuLayout(); 
         }
         
         window.addEventListener('load', resizeCanvas);
@@ -1085,6 +1115,7 @@
         
         function populateFilterMenu() {
             const options = filterSelect.options;
+            numFilters = options.length; // On stocke le nombre de filtres
             for (let i = 0; i < options.length; i++) {
                 const option = options[i];
                 const button = document.createElement('button');
@@ -1102,7 +1133,11 @@
             }
         }
 
-        modeButton.addEventListener('click', () => { filterSelectionMenu.classList.toggle('hidden'); });
+        modeButton.addEventListener('click', () => { 
+            filterSelectionMenu.classList.toggle('hidden');
+            // On met à jour la disposition du menu quand on l'affiche/cache
+            updateFilterMenuLayout();
+        });
         
         navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => { videoElement.srcObject = stream; }).catch((err) => { console.error("Erreur d'accès à la webcam: " + err); alert("Impossible d'accéder à la webcam."); });
 
