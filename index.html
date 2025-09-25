@@ -50,15 +50,49 @@
         #title_link:hover {
             background-color: rgba(0, 255, 0, 0.1);
         }
+        
+        /* --- NOUVEAUX STYLES POUR LE MENU DÉPLIANT --- */
         #gui {
             position: absolute;
             top: 10px;
             right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px;
-            border-radius: 6px;
+            width: 150px; /* Largeur fixe pour un meilleur rendu */
             z-index: 10;
         }
+        #gui_toggle {
+            background-color: transparent;
+            color: #0f0;
+            padding: 8px;
+            border: 1px solid #0f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: "Press Start 2P", monospace;
+            font-size: 8px;
+            width: 100%;
+            text-shadow: 0 0 3px #0f0;
+            transition: background-color 0.2s;
+        }
+        #gui_toggle:hover {
+            background-color: rgba(0, 255, 0, 0.1);
+        }
+        #gui_content {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px;
+            border: 1px solid #0f0;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 500px; /* Hauteur max pour l'animation */
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out, border 0.4s;
+        }
+        #gui_content.collapsed {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-width: 0 1px;
+        }
+        /* --- FIN DES NOUVEAUX STYLES --- */
+
         .gui-item {
             display: flex;
             align-items: center;
@@ -79,6 +113,7 @@
             font-size: 7px;
             padding: 1px;
             width: 100%;
+            min-width: 65px;
         }
         #gui input[type="checkbox"] {
             appearance: none;
@@ -248,7 +283,7 @@
             border-radius: 50%;
         }
 
-        /* --- NOUVEAUX STYLES POUR LE MENU DE SÉLECTION PAR LES MAINS --- */
+        /* --- STYLES POUR LE MENU DE SÉLECTION PAR LES MAINS --- */
         .hidden {
             display: none !important;
         }
@@ -279,13 +314,12 @@
             box-shadow: 0 0 10px #0f0;
         }
         
-        /* --- NOUVEAU STYLE DU MENU DE FILTRES --- */
         #filter_selection_menu {
             position: absolute;
-            top: 40px;      /* Modifié */
-            right: 40px;    /* Modifié */
-            bottom: 40px;   /* Modifié */
-            left: 40px;     /* Modifié */
+            top: 40px;
+            right: 40px;
+            bottom: 40px;
+            left: 40px;
             z-index: 24;
             display: grid;
             gap: 10px;
@@ -293,7 +327,6 @@
             background-color: rgba(0, 15, 0, 0.85);
             border: 2px solid #0f0;
             border-radius: 5px;
-            /* Les propriétés de grille et d'overflow sont maintenant gérées en JS */
         }
 
         #filter_selection_menu button {
@@ -355,69 +388,74 @@
         <div id="hand_cursor_1" class="hand-cursor"></div>
         <div id="hand_cursor_2" class="hand-cursor"></div>
 
-
+        <!-- NOUVELLE STRUCTURE DU MENU DÉPLIANT -->
         <div id="gui">
-            <div class="gui-item">
-                <label for="max_num_hands">Max Hands:</label>
-                <input type="range" id="max_num_hands" min="1" max="4" step="1" value="2">
+            <button id="gui_toggle">SETTINGS</button>
+            <div id="gui_content" class="collapsed">
+                <div class="gui-item">
+                    <label for="max_num_hands">Max Hands:</label>
+                    <input type="range" id="max_num_hands" min="1" max="4" step="1" value="2">
+                </div>
+                <div class="gui-item">
+                    <label for="filter_select">Filter:</label>
+                    <select id="filter_select">
+                        <option value="ascii">ASCII Terminal</option>
+                        <option value="bleed">Data Bleed</option>
+                        <option value="neural">Neural Network</option>
+                        <option value="voronoi">Voronoi Shatter</option>
+                        <option value="virtualboy">VIRTUAL BOY</option>
+                        <option value="synapse">Cyber Synapse</option>
+                        <option value="trace">Trace Corridors</option>
+                        <option value="orbital">Orbital Array</option>
+                        <option value="glyphs">Glitch Glyphs</option>
+                        <option value="hive">Digital Hive</option>
+                        <option value="liquidflow">Liquid Flow</option>
+                        <option value="spectral">Spectral Grid</option>
+                        <option value="modeler">Neural Modeler</option>
+                        <option value="waveform">Waveform Visualizer</option>
+                        <option value="asciidistort">ASCII Distort</option>
+                        <option value="flowfield">Particle Flow Field</option>
+                        <option value="cyberscope">Lissajous Cyberscope</option>
+                        <option value="frameglitch">Frame Buffer Glitch</option>
+                        <option value="attractor">Strange Attractor</option>
+                        <option value="spectrogram">Particle Spectrogram</option>
+                        <option value="holorain">Holographic Rain</option>
+                        <option value="warpdrive">Warp Drive</option>
+                        <option value="feedback">Synaptic Feedback</option>
+                        <option value="mycelium">Glitch Mycelium</option>
+                        <option value="aether">Aetherial Fluid</option>
+                        <option value="swarm">Fractal Swarm</option>
+                        <option value="tesseract">Tesseract Wireframe</option>
+                        <option value="containment">Antimatter Containment</option>
+                        <option value="cryoshards">Cryo-Shards</option>
+                        <option value="gravity_well">Gravity Well Emitter</option>
+                        <option value="voxel_decomp">Voxelated Decomposition</option>
+                        <option value="bifurcation">Bifurcation Diagram</option>
+                        <option value="jet">Relativistic Jet</option>
+                        <option value="lorenz">Lorenz Attractor</option>
+                        <option value="hextile">Hexagonal Tiling</option>
+                        <option value="dejong">De Jong Attractor</option>
+                        <option value="clifford">Clifford Attractor</option>
+                        <option value="hopalong">Hopalong Attractor</option>
+                    </select>
+                </div>
+                <div class="gui-item">
+                    <label for="filter_active">Activate Filter:</label>
+                    <input type="checkbox" id="filter_active">
+                </div>
+                <div class="gui-item">
+                    <label for="face_detection_active">Face Detection:</label>
+                    <input type="checkbox" id="face_detection_active">
+                </div>
+                <div class="gui-item">
+                    <label for="fullscreen_checkbox">Fullscreen:</label>
+                    <input type="checkbox" id="fullscreen_checkbox">
+                </div>
+                <button id="reset_button">Reset</button>
             </div>
-            <div class="gui-item">
-                <label for="filter_select">Filter:</label>
-                <select id="filter_select">
-                    <option value="ascii">ASCII Terminal</option>
-                    <option value="bleed">Data Bleed</option>
-                    <option value="neural">Neural Network</option>
-                    <option value="voronoi">Voronoi Shatter</option>
-                    <option value="virtualboy">VIRTUAL BOY</option>
-                    <option value="synapse">Cyber Synapse</option>
-                    <option value="trace">Trace Corridors</option>
-                    <option value="orbital">Orbital Array</option>
-                    <option value="glyphs">Glitch Glyphs</option>
-                    <option value="hive">Digital Hive</option>
-                    <option value="liquidflow">Liquid Flow</option>
-                    <option value="spectral">Spectral Grid</option>
-                    <option value="modeler">Neural Modeler</option>
-                    <option value="waveform">Waveform Visualizer</option>
-                    <option value="asciidistort">ASCII Distort</option>
-                    <option value="flowfield">Particle Flow Field</option>
-                    <option value="cyberscope">Lissajous Cyberscope</option>
-                    <option value="frameglitch">Frame Buffer Glitch</option>
-                    <option value="attractor">Strange Attractor</option>
-                    <option value="spectrogram">Particle Spectrogram</option>
-                    <option value="holorain">Holographic Rain</option>
-                    <option value="warpdrive">Warp Drive</option>
-                    <option value="feedback">Synaptic Feedback</option>
-                    <option value="mycelium">Glitch Mycelium</option>
-                    <option value="aether">Aetherial Fluid</option>
-                    <option value="swarm">Fractal Swarm</option>
-                    <option value="tesseract">Tesseract Wireframe</option>
-                    <option value="containment">Antimatter Containment</option>
-                    <option value="cryoshards">Cryo-Shards</option>
-                    <option value="gravity_well">Gravity Well Emitter</option>
-                    <option value="voxel_decomp">Voxelated Decomposition</option>
-                    <option value="bifurcation">Bifurcation Diagram</option>
-                    <option value="jet">Relativistic Jet</option>
-                    <option value="lorenz">Lorenz Attractor</option>
-                    <option value="hextile">Hexagonal Tiling</option>
-                    <option value="dejong">De Jong Attractor</option>
-                    <option value="clifford">Clifford Attractor</option>
-                    <option value="hopalong">Hopalong Attractor</option>
-                </select>
-            </div>
-            <div class="gui-item">
-                <label for="filter_active">Activate Filter:</label>
-                <input type="checkbox" id="filter_active">
-            </div>
-            <div class="gui-item">
-                <label for="face_detection_active">Face Detection:</label>
-                <input type="checkbox" id="face_detection_active">
-            </div>
-            <div class="gui-item">
-                <label for="fullscreen_checkbox">Fullscreen:</label>
-                <input type="checkbox" id="fullscreen_checkbox">
-            </div>
-            <button id="reset_button">Reset</button>
         </div>
+        <!-- FIN DE LA NOUVELLE STRUCTURE -->
+
         <div id="game_ui">
             <div id="timer"></div>
             <div id="score"></div>
@@ -466,10 +504,12 @@
         const indicatorRightLabel = indicatorRight.querySelector('.indicator-value');
         const modeButton = document.getElementById('mode_button');
         const filterSelectionMenu = document.getElementById('filter_selection_menu');
-        
         const handCursor1 = document.getElementById('hand_cursor_1');
         const handCursor2 = document.getElementById('hand_cursor_2');
         const handCursors = [handCursor1, handCursor2];
+        // Nouveaux sélecteurs pour le menu dépliant
+        const guiToggle = document.getElementById('gui_toggle');
+        const guiContent = document.getElementById('gui_content');
 
         // Instance P5.js pour le bruit de Perlin
         let p5Instance;
@@ -499,7 +539,7 @@
         let dwellClickStartTime = 0;
         const DWELL_TIME_MS = 900;
         let previouslyHoveredButtons = new Set();
-        let numFilters = 0; // NOUVEAU: variable pour stocker le nombre de filtres
+        let numFilters = 0;
 
         // Variables pour les filtres
         let synapseParticles = [], traceWalkers = [], orbitalPhase = 0, glyphColumns = [];
@@ -523,7 +563,6 @@
         let jetParticles = [];
         let lorenzState = { x: 0.1, y: 0, z: 0 };
         let hextileGrid = [];
-        
         let deJongState = {x: 0, y: 0};
         let cliffordState = {x: 0, y: 0};
         let hopalongState = {x: 0, y: 0};
@@ -962,7 +1001,6 @@
         function generateNewTarget() { const margin = 20; target.x = Math.random() * (canvasElement.width - target.size - margin * 2) + margin; target.y = Math.random() * (canvasElement.height - target.size - margin * 2) + margin; }
 
         // --- SECTION FILTRES ---
-        // ... (toutes les fonctions de filtre restent identiques, elles recevront maintenant les landmarks transformés)
         function applyVirtualBoyFilter() { const virtualBoyPalette = [[60, 0, 0], [120, 0, 0], [190, 0, 0], [255, 20, 20]]; const pixelationControl = handValues.length > 0 ? handValues[0] / 1000 : 0.5; const pixelSize = Math.max(8, Math.floor(20 - (pixelationControl * 12))); const w = canvasElement.width, h = canvasElement.height; const imageData = canvasCtx.getImageData(0, 0, w, h); const data = imageData.data; for (let y = 0; y < h; y += pixelSize) { for (let x = 0; x < w; x += pixelSize) { const i = (y * w + x) * 4; const brightness = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]; let color; if (brightness < 64) color = virtualBoyPalette[0]; else if (brightness < 128) color = virtualBoyPalette[1]; else if (brightness < 192) color = virtualBoyPalette[2]; else color = virtualBoyPalette[3]; canvasCtx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`; canvasCtx.fillRect(x, y, pixelSize, pixelSize); } } }
         function applyVoronoiShatterFilter(multiHandLandmarks) { if (!multiHandLandmarks) return; const glowControl = handValues[0] / 1000 || 0; const chaosControl = handValues[1] / 1000 || (handValues[0] / 1000) || 0; let points = []; multiHandLandmarks.forEach(landmarks => { landmarks.forEach(lm => points.push({x: (1-lm.x) * canvasElement.width, y: lm.y * canvasElement.height})); }); if (points.length < 3) return; const imageData = canvasCtx.getImageData(0,0,canvasElement.width,canvasElement.height); canvasCtx.fillStyle = '#000'; canvasCtx.fillRect(0,0,canvasElement.width,canvasElement.height); points.forEach(p => { p.x += (Math.random() - 0.5) * chaosControl * 20; p.y += (Math.random() - 0.5) * chaosControl * 20; }); for(let i=0; i<points.length; i++) { let neighbors = findNearest(points[i], points, 3); canvasCtx.beginPath(); canvasCtx.moveTo(neighbors[0].x, neighbors[0].y); canvasCtx.lineTo(neighbors[1].x, neighbors[1].y); canvasCtx.lineTo(neighbors[2].x, neighbors[2].y); canvasCtx.closePath(); const avgX = Math.floor((neighbors[0].x + neighbors[1].x + neighbors[2].x) / 3); const avgY = Math.floor((neighbors[0].y + neighbors[1].y + neighbors[2].y) / 3); const pixelIndex = (avgY * canvasElement.width + avgX) * 4; const r = imageData.data[pixelIndex], g = imageData.data[pixelIndex+1], b = imageData.data[pixelIndex+2]; canvasCtx.fillStyle = `rgb(${r},${g},${b})`; canvasCtx.fill(); canvasCtx.strokeStyle = `rgba(255,255,255,${glowControl})`; canvasCtx.lineWidth = glowControl * 3; canvasCtx.stroke(); } }
         function findNearest(point, points, n) { return [...points].sort((a,b) => Math.hypot(point.x-a.x, point.y-a.y) - Math.hypot(point.x-b.x, point.y-b.y)).slice(1, n+1); }
@@ -1009,39 +1047,21 @@
         const camera = new Camera(videoElement, { onFrame: async () => { if (videoElement.readyState >= 2) { await hands.send({ image: videoElement }); if (settings.isFaceDetectionActive) { await faceDetection.send({ image: videoElement }); } } }, width: 1280, height: 720 });
         camera.start();
         
-        // --- NOUVELLE FONCTION POUR METTRE À JOUR LA GRILLE DU MENU ---
         function updateFilterMenuLayout() {
             if (filterSelectionMenu.classList.contains('hidden') || numFilters === 0) return;
-
             const menuStyle = getComputedStyle(filterSelectionMenu);
-            // On calcule l'espace disponible à l'intérieur du menu (après padding)
             const availableWidth = filterSelectionMenu.clientWidth - parseInt(menuStyle.paddingLeft) - parseInt(menuStyle.paddingRight);
             const availableHeight = filterSelectionMenu.clientHeight - parseInt(menuStyle.paddingTop) - parseInt(menuStyle.paddingBottom);
-            
-            let bestLayout = {
-                cols: 1,
-                rows: numFilters,
-                maxSize: 0 // On cherche à maximiser la plus petite dimension d'un bouton
-            };
-
-            // On teste toutes les configurations de colonnes possibles
+            let bestLayout = { cols: 1, rows: numFilters, maxSize: 0 };
             for (let cols = 1; cols <= numFilters; cols++) {
                 const rows = Math.ceil(numFilters / cols);
                 const buttonWidth = availableWidth / cols;
                 const buttonHeight = availableHeight / rows;
-                // Le "score" est la taille minimale (largeur ou hauteur), pour éviter des boutons trop allongés
                 const potentialSize = Math.min(buttonWidth, buttonHeight);
-                
                 if (potentialSize > bestLayout.maxSize) {
-                    bestLayout = {
-                        cols: cols,
-                        rows: rows,
-                        maxSize: potentialSize
-                    };
+                    bestLayout = { cols: cols, rows: rows, maxSize: potentialSize };
                 }
             }
-
-            // On applique la meilleure configuration trouvée directement au style de l'élément
             filterSelectionMenu.style.gridTemplateColumns = `repeat(${bestLayout.cols}, 1fr)`;
             filterSelectionMenu.style.gridTemplateRows = `repeat(${bestLayout.rows}, 1fr)`;
         }
@@ -1060,7 +1080,6 @@
                 deJongState = {x: 0, y: 0}; cliffordState = {x: 0, y: 0}; hopalongState = {x: 0, y: 0};
                 hopalongLastResetTime = 0;
             }
-            // On met à jour la disposition du menu à chaque redimensionnement
             updateFilterMenuLayout(); 
         }
         
@@ -1115,7 +1134,7 @@
         
         function populateFilterMenu() {
             const options = filterSelect.options;
-            numFilters = options.length; // On stocke le nombre de filtres
+            numFilters = options.length;
             for (let i = 0; i < options.length; i++) {
                 const option = options[i];
                 const button = document.createElement('button');
@@ -1135,8 +1154,12 @@
 
         modeButton.addEventListener('click', () => { 
             filterSelectionMenu.classList.toggle('hidden');
-            // On met à jour la disposition du menu quand on l'affiche/cache
             updateFilterMenuLayout();
+        });
+
+        // NOUVEL ÉVÉNEMENT POUR LE MENU DÉPLIANT
+        guiToggle.addEventListener('click', () => {
+            guiContent.classList.toggle('collapsed');
         });
         
         navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => { videoElement.srcObject = stream; }).catch((err) => { console.error("Erreur d'accès à la webcam: " + err); alert("Impossible d'accéder à la webcam."); });
