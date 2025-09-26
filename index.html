@@ -46,31 +46,38 @@
             z-index: 15;
             padding: 5px;
             transition: background-color 0.2s;
+            line-height: 1.5; /* Ajout pour l'espacement */
         }
         #title_link:hover {
             background-color: rgba(0, 255, 0, 0.1);
         }
         
-        /* --- NOUVEAUX STYLES POUR LE MENU DÉPLIANT --- */
+        /* --- STYLES POUR LE MENU DÉPLIANT --- */
         #gui {
             position: absolute;
             top: 10px;
             right: 10px;
-            width: 150px; /* Largeur fixe pour un meilleur rendu */
+            width: auto; /* Modifié de 150px à auto */
             z-index: 10;
         }
         #gui_toggle {
             background-color: transparent;
             color: #0f0;
-            padding: 8px;
             border: 1px solid #0f0;
             border-radius: 6px;
             cursor: pointer;
             font-family: "Press Start 2P", monospace;
-            font-size: 8px;
-            width: 100%;
+            width: 42px; /* Modifié */
+            height: 42px; /* Modifié */
             text-shadow: 0 0 3px #0f0;
             transition: background-color 0.2s;
+            display: flex; /* Ajouté */
+            align-items: center; /* Ajouté */
+            justify-content: center; /* Ajouté */
+            font-size: 7px; /* Modifié */
+            text-align: center; /* Ajouté */
+            line-height: 1.1em; /* Ajouté */
+            padding: 2px; /* Modifié */
         }
         #gui_toggle:hover {
             background-color: rgba(0, 255, 0, 0.1);
@@ -84,6 +91,7 @@
             max-height: 500px; /* Hauteur max pour l'animation */
             overflow: hidden;
             transition: max-height 0.4s ease-out, padding 0.4s ease-out, border 0.4s;
+            width: 150px; /* Ajout d'une largeur fixe ici */
         }
         #gui_content.collapsed {
             max-height: 0;
@@ -377,7 +385,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="https://www.laurentcariou.net/" target="_blank" id="title_link">ERZ DESIGNWORKS COMPUTER VISION, 2025</a>
+        <a href="https://www.laurentcariou.net/" target="_blank" id="title_link">ERZ<br>DESIGNWORKS<br>COMPUTER<br>VISION,<br>2025</a>
         <video id="webcam" autoplay playsinline></video>
         <canvas id="output_canvas"></canvas>
 
@@ -407,25 +415,19 @@
                         <option value="synapse">Cyber Synapse</option>
                         <option value="trace">Trace Corridors</option>
                         <option value="orbital">Orbital Array</option>
-                        <option value="glyphs">Glitch Glyphs</option>
                         <option value="hive">Digital Hive</option>
                         <option value="liquidflow">Liquid Flow</option>
                         <option value="spectral">Spectral Grid</option>
                         <option value="modeler">Neural Modeler</option>
-                        <option value="waveform">Waveform Visualizer</option>
                         <option value="asciidistort">ASCII Distort</option>
                         <option value="flowfield">Particle Flow Field</option>
                         <option value="cyberscope">Lissajous Cyberscope</option>
                         <option value="frameglitch">Frame Buffer Glitch</option>
                         <option value="attractor">Strange Attractor</option>
-                        <option value="spectrogram">Particle Spectrogram</option>
                         <option value="holorain">Holographic Rain</option>
                         <option value="warpdrive">Warp Drive</option>
                         <option value="feedback">Synaptic Feedback</option>
-                        <option value="mycelium">Glitch Mycelium</option>
                         <option value="aether">Aetherial Fluid</option>
-                        <option value="swarm">Fractal Swarm</option>
-                        <option value="tesseract">Tesseract Wireframe</option>
                         <option value="containment">Antimatter Containment</option>
                         <option value="cryoshards">Cryo-Shards</option>
                         <option value="gravity_well">Gravity Well Emitter</option>
@@ -433,8 +435,6 @@
                         <option value="bifurcation">Bifurcation Diagram</option>
                         <option value="jet">Relativistic Jet</option>
                         <option value="lorenz">Lorenz Attractor</option>
-                        <option value="hextile">Hexagonal Tiling</option>
-                        <option value="dejong">De Jong Attractor</option>
                         <option value="clifford">Clifford Attractor</option>
                         <option value="hopalong">Hopalong Attractor</option>
                     </select>
@@ -524,9 +524,8 @@
         // --- Liste des filtres qui ne doivent pas afficher la webcam ---
         const generativeOnlyFilters = [
             'trace', 'orbital', 'liquidflow', 'flowfield', 'cyberscope', 'synapse', 'attractor', 
-            'spectrogram', 'holorain', 'warpdrive', 'mycelium',
-            'aether', 'swarm', 'tesseract', 'containment', 'cryoshards',
-            'gravity_well', 'bifurcation', 'jet', 'lorenz', 'hextile', 'dejong', 'clifford',
+            'holorain', 'warpdrive', 'aether', 'containment', 'cryoshards',
+            'gravity_well', 'bifurcation', 'jet', 'lorenz', 'clifford',
             'hopalong'
         ];
 
@@ -542,19 +541,15 @@
         let numFilters = 0;
 
         // Variables pour les filtres
-        let synapseParticles = [], traceWalkers = [], orbitalPhase = 0, glyphColumns = [];
+        let synapseParticles = [], traceWalkers = [], orbitalPhase = 0;
         let flowParticles = [], modelerRotation = 0;
         let flowFieldParticles = [], lissajousParams = {};
         let previousFrame;
         let attractorParams = {};
-        let spectrogramParticles = [];
         let holorainParticles = [];
         let warpdriveStars = [];
         let feedbackParticles = [];
-        let myceliumParticles = [];
         let aetherParticles = [];
-        let swarmParticles = [];
-        let tesseractState = { angleXY: 0, angleZW: 0, angleXW: 0, angleYW: 0, angleYZ: 0 };
         let containmentParticles = [];
         let cryoShards = [], cryoParticles = [];
         let gravityParticles = [];
@@ -563,7 +558,6 @@
         let jetParticles = [];
         let lorenzState = { x: 0.1, y: 0, z: 0 };
         let hextileGrid = [];
-        let deJongState = {x: 0, y: 0};
         let cliffordState = {x: 0, y: 0};
         let hopalongState = {x: 0, y: 0};
         let hopalongLastResetTime = 0;
@@ -733,35 +727,6 @@
             }
         }
 
-        function drawVideoWithCorrectAspectRatio() {
-            const canvasW = canvasElement.width;
-            const canvasH = canvasElement.height;
-            const videoW = videoElement.videoWidth;
-            const videoH = videoElement.videoHeight;
-
-            if (videoW === 0 || videoH === 0) return null;
-
-            const canvasRatio = canvasW / canvasH;
-            const videoRatio = videoW / videoH;
-
-            let sx, sy, sWidth, sHeight;
-
-            if (canvasRatio > videoRatio) {
-                sWidth = videoW;
-                sHeight = videoW / canvasRatio;
-                sx = 0;
-                sy = (videoH - sHeight) / 2;
-            } else {
-                sHeight = videoH;
-                sWidth = videoH * canvasRatio;
-                sy = 0;
-                sx = (videoW - sWidth) / 2;
-            }
-            
-            canvasCtx.drawImage(videoElement, sx, sy, sWidth, sHeight, 0, 0, canvasW, canvasH);
-            return { sx, sy, sWidth, sHeight };
-        }
-
         function onHandResults(results) {
             const w = canvasElement.width;
             const h = canvasElement.height;
@@ -783,21 +748,43 @@
                 prevCtx.drawImage(canvasElement, 0, 0);
             }
 
+            // --- LOGIQUE DE RENDU AMÉLIORÉE ---
+
+            // 1. Calculer systématiquement la transformation de l'aspect ratio
+            let videoTransform = null;
+            if (videoW > 0 && videoH > 0) {
+                const canvasRatio = w / h;
+                const videoRatio = videoW / videoH;
+                let sx, sy, sWidth, sHeight;
+
+                if (canvasRatio > videoRatio) {
+                    sWidth = videoW;
+                    sHeight = videoW / canvasRatio;
+                    sx = 0;
+                    sy = (videoH - sHeight) / 2;
+                } else {
+                    sHeight = videoH;
+                    sWidth = videoH * canvasRatio;
+                    sy = 0;
+                    sx = (videoW - sWidth) / 2;
+                }
+                videoTransform = { sx, sy, sWidth, sHeight };
+            }
+
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, w, h);
 
-            let videoTransform = null;
+            // 2. Afficher la vidéo (si nécessaire) en utilisant la transformation pré-calculée
             const shouldShowWebcam = !settings.isFilterActive || !generativeOnlyFilters.includes(settings.selectedFilter);
-
-            if (shouldShowWebcam) {
+            if (shouldShowWebcam && videoTransform) {
                 canvasCtx.save();
                 canvasCtx.translate(w, 0);
                 canvasCtx.scale(-1, 1);
-                videoTransform = drawVideoWithCorrectAspectRatio();
+                canvasCtx.drawImage(videoElement, videoTransform.sx, videoTransform.sy, videoTransform.sWidth, videoTransform.sHeight, 0, 0, w, h);
                 canvasCtx.restore();
             }
 
-            // --- TRANSFORMATION DES COORDONNÉES ---
+            // 3. Transformer systématiquement les coordonnées des mains et du visage
             let transformedMultiHandLandmarks = results.multiHandLandmarks;
             if (videoTransform && results.multiHandLandmarks) {
                 transformedMultiHandLandmarks = results.multiHandLandmarks.map(hand => 
@@ -826,6 +813,8 @@
                     }))
                 }));
             }
+            
+            // --- FIN DE LA LOGIQUE AMÉLIORÉE ---
             
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 handValues = [], handAngles = [];
@@ -965,15 +954,24 @@
                 canvasCtx.font = '15px "Press Start 2P"';
                 canvasCtx.textAlign = 'center';
                 canvasCtx.textBaseline = 'bottom';
-                canvasCtx.fillText("HAND CONNECTION ESTABLISHED", w / 2, h - 20);
+                canvasCtx.fillText("HAND CONNECTION ESTABLISHED", w / 2, h - 50); // Modifié
             } else {
                 const time = performance.now() / 1000, blinkSpeed = 0.5;
                 const opacity = (Math.sin(time * 2 * Math.PI * blinkSpeed) + 1) / 2;
                 canvasCtx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
-                canvasCtx.font = '35px "Press Start 2P"';
+
+                // Logique pour la taille de police dynamique
+                const text = "SHOW ME YOUR HANDS";
+                let fontSize = 80;
+                canvasCtx.font = `${fontSize}px "Press Start 2P"`;
+                while (canvasCtx.measureText(text).width > w * 0.5 && fontSize > 10) {
+                    fontSize--;
+                    canvasCtx.font = `${fontSize}px "Press Start 2P"`;
+                }
+
                 canvasCtx.textAlign = 'center';
                 canvasCtx.textBaseline = 'middle';
-                canvasCtx.fillText("SHOW ME YOUR HANDS", w / 2, h / 2);
+                canvasCtx.fillText(text, w / 2, h / 2);
             }
             
             if (isGameRunning) { updateGame(w, h); drawGameElements(); }
@@ -1010,38 +1008,30 @@
         function applyCyberSynapseFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; const speedControl = handValues[0] / 1000 || 0.3; const densityControl = handValues[1] / 1000 || 0.3; canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.15)'; canvasCtx.fillRect(0, 0, w, h); if (multiHandLandmarks) { for (const landmarks of multiHandLandmarks) { if (Math.random() < densityControl) { const landmark = landmarks[Math.floor(Math.random() * landmarks.length)]; for(let i=0; i < 10; i++) { synapseParticles.push({ x: (1 - landmark.x) * w, y: landmark.y * h, vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 0.5) * 3, life: 50 + densityControl * 100, hue: 120 + Math.random() * 60 }); } } } } for (let p of synapseParticles) { p.x += p.vx; p.y += p.vy; p.vx += (Math.random() - 0.5) * speedControl; p.vy += (Math.random() - 0.5) * speedControl; p.life--; canvasCtx.fillStyle = `hsla(${p.hue}, 100%, 70%, ${p.life / 100})`; canvasCtx.fillRect(p.x, p.y, 2, 2); } synapseParticles = synapseParticles.filter(p => p.life > 0); }
         function applyTraceCorridorsFilter() { const w = canvasElement.width, h = canvasElement.height; const speedControl = 1 + (handValues[0] / 1000 * 100) || 2; const turnChance = 0.01 + (handValues[1] / 1000 * 0.2) || 0.05; if (traceWalkers.length === 0 && w > 0) { for (let i = 0; i < 100; i++) { traceWalkers.push({ x: Math.random() * w, y: Math.random() * h, dir: Math.floor(Math.random() * 4), color: `hsl(${100 + Math.random() * 40}, 100%, 50%)` }); } } const currentHandValue = handValues[0] || 0; const fadeAlpha = mapValue(currentHandValue, 0, 1000, 0.1, 0.002); canvasCtx.fillStyle = `rgba(0, 0, 0, ${fadeAlpha})`; canvasCtx.fillRect(0, 0, w, h); for (const walker of traceWalkers) { canvasCtx.strokeStyle = walker.color; canvasCtx.lineWidth = 2; canvasCtx.shadowColor = walker.color; canvasCtx.shadowBlur = 10; canvasCtx.beginPath(); canvasCtx.moveTo(walker.x, walker.y); if (walker.dir === 0) walker.y -= speedControl; else if (walker.dir === 1) walker.x += speedControl; else if (walker.dir === 2) walker.y += speedControl; else walker.x -= speedControl; canvasCtx.lineTo(walker.x, walker.y); canvasCtx.stroke(); if (walker.x <= 0 && walker.dir === 3) walker.dir = 1; else if (walker.x >= w && walker.dir === 1) walker.dir = 3; else if (walker.y <= 0 && walker.dir === 0) walker.dir = 2; else if (walker.y >= h && walker.dir === 2) walker.dir = 0; if (Math.random() < turnChance) { walker.dir = Math.floor(Math.random() * 4); } } canvasCtx.shadowBlur = 0; }
         function applyOrbitalArrayFilter() { const w = canvasElement.width, h = canvasElement.height; const complexity = 3 + Math.floor((handValues[0] / 1000) * 10) || 3; const speed = handValues[1] / 1000 || 0; orbitalPhase += speed * 0.1; canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); canvasCtx.strokeStyle = '#0f0'; canvasCtx.lineWidth = 1; const ringCount = 10; for(let i=1; i <= ringCount; i++) { const radius = (i / ringCount) * (w/4) * (1 + Math.sin(orbitalPhase + i*0.5) * 0.1 * speed); canvasCtx.beginPath(); for (let j = 0; j <= complexity; j++) { const angle = (j / complexity) * Math.PI * 2 + orbitalPhase * (i % 2 === 0 ? -1 : 1) * 0.2; const x = w/2 + Math.cos(angle) * radius; const y = h/2 + Math.sin(angle) * radius; if(j === 0) canvasCtx.moveTo(x,y); else canvasCtx.lineTo(x,y); } canvasCtx.stroke(); } }
-        function applyGlitchGlyphsFilter() { const w = canvasElement.width, h = canvasElement.height; const speed = 1 + (handValues[0] / 1000 * 20) || 1; const sizeAndGlow = handValues[1] / 1000 || 0.1; const katakana = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン"; const fontSize = 10 + sizeAndGlow * 20; if(glyphColumns.length === 0 && w > 0) { const columnCount = Math.floor(w / fontSize); for(let i=0; i < columnCount; i++) { glyphColumns.push({ x: i * fontSize, y: Math.random() * h, speed: 1 + Math.random() * 5 }); } } canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); canvasCtx.font = `${fontSize}px "Press Start 2P"`; canvasCtx.shadowColor = '#0f0'; canvasCtx.shadowBlur = sizeAndGlow * 20; for(const col of glyphColumns) { const char = katakana[Math.floor(Math.random() * katakana.length)]; canvasCtx.fillStyle = '#0f0'; canvasCtx.fillText(char, col.x, col.y); col.y += col.speed + speed; if(col.y > h) { col.y = 0; col.speed = 1 + Math.random() * 5; } } canvasCtx.shadowBlur = 0; }
         function applyDigitalHiveFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; if (w===0) return; const speed = mapValue(handValues[0] || 0, 0, 1000, 0.2, 0.01); const size = 10 + (handValues[1]/1000||0.5)*40; if(hextileGrid.length===0 || hextileGrid[0].size !== size){ hextileGrid = []; const hexW=size*2, hexH=Math.sqrt(3)*size; for(let y=0,r=0; y<h+hexH; y+=hexH/2, r++){ for(let x=0,c=0; x<w+hexW; x+=(hexW*3/4), c++){ hextileGrid.push({x:x+(r%2)*(hexW*3/8), y:y, energy:0, size:size}); } } } canvasCtx.fillStyle='rgba(0,0,0,0.2)'; canvasCtx.fillRect(0,0,w,h); let handPos = []; if(multiHandLandmarks) { handPos = multiHandLandmarks.map(l => ({x: (1-l[8].x)*w, y:l[8].y*h})); } hextileGrid.forEach(hex => { handPos.forEach(hnd => { if(Math.hypot(hex.x-hnd.x, hex.y-hnd.y) < size*2) hex.energy = 1; }); hex.energy -= speed; if(hex.energy<0) hex.energy=0; if(hex.energy>0.01){ canvasCtx.strokeStyle = `rgba(0,255,0,${hex.energy})`; canvasCtx.lineWidth = 1+hex.energy*2; canvasCtx.beginPath(); for(let i=0;i<7;i++){ const angle=Math.PI/3*i-Math.PI/6; canvasCtx.lineTo(hex.x+size*Math.cos(angle), hex.y+size*Math.sin(angle)); } canvasCtx.stroke(); } }); }
         function applyLiquidFlowFilter() { const w = canvasElement.width, h = canvasElement.height; const speed = (handValues[0] / 1000 || 0.1) * 5; const chaosControl = (handValues[1] / 1000) || 0; const fixedTurbulence = 0.01; if (flowParticles.length === 0 && w > 0) { for (let i = 0; i < 14000; i++) { flowParticles.push({ x: Math.random() * w, y: Math.random() * h, chaoticAngle: Math.random() * Math.PI * 2 }); } } canvasCtx.fillStyle = 'rgba(0,0,0,0.05)'; canvasCtx.fillRect(0,0,w,h); canvasCtx.fillStyle = '#0f0'; for(const p of flowParticles) { const orderedAngle = Math.sin(p.x * fixedTurbulence) + Math.cos(p.y * fixedTurbulence); const orderedVx = Math.cos(orderedAngle) * speed; const orderedVy = Math.sin(orderedAngle) * speed; const chaoticVx = Math.cos(p.chaoticAngle) * speed; const chaoticVy = Math.sin(p.chaoticAngle) * speed; const finalVx = (1 - chaosControl) * orderedVx + chaosControl * chaoticVx; const finalVy = (1 - chaosControl) * orderedVy + chaosControl * chaoticVy; p.x += finalVx; p.y += finalVy; if (p.x < 0) p.x += w; if (p.x > w) p.x -= w; if (p.y < 0) p.y += h; if (p.y > h) p.y -= h; canvasCtx.fillRect(p.x, p.y, 1, 1); } }
         function applySpectralGridFilter() { const w = canvasElement.width, h = canvasElement.height; if (w === 0) return; const resolution = 5 + Math.floor((1 - (handValues[0] / 1000 || 0.5)) * 30); const sensitivity = 1 + (handValues[1] / 1000 || 0.2) * 5; const imageData = canvasCtx.getImageData(0,0,w,h); const data = imageData.data; canvasCtx.fillStyle='black'; canvasCtx.fillRect(0,0,w,h); for(let y=0; y<h; y+=resolution) { for(let x=0; x<w; x+=resolution) { const i = (y*w+x)*4; const brightness = (data[i]+data[i+1]+data[i+2])/3/255; const size = brightness * resolution * sensitivity; const hue = 120 + brightness * 100; canvasCtx.fillStyle = `hsl(${hue}, 100%, 50%)`; canvasCtx.beginPath(); canvasCtx.arc(x,y,size/2,0,Math.PI*2); canvasCtx.fill(); } } }
         function applyNeuralModelerFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; const depth = (handValues[0] / 1000 || 0) * 500; const speed = (handValues[1] / 1000 || 0) * 0.1; modelerRotation += speed; canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); if (!multiHandLandmarks) return; let points = []; multiHandLandmarks.forEach(landmarks => { landmarks.forEach(lm => points.push({x: (1-lm.x)*w, y: lm.y*h, z: 0})); }); canvasCtx.save(); canvasCtx.translate(w/2, h/2); const pointsA = points.map(p => ({x: p.x-w/2, y:p.y-h/2, z: -depth/2})); const pointsB = points.map(p => ({x: p.x-w/2, y:p.y-h/2, z: depth/2})); let allPoints = [...pointsA, ...pointsB]; allPoints.forEach(p => { const rotX = p.x * Math.cos(modelerRotation) - p.z * Math.sin(modelerRotation); const rotZ = p.x * Math.sin(modelerRotation) + p.z * Math.cos(modelerRotation); p.x = rotX; p.z = rotZ; }); canvasCtx.strokeStyle = '#0f0'; for (let i=0; i<pointsA.length; i++) { canvasCtx.beginPath(); canvasCtx.moveTo(pointsA[i].x, pointsA[i].y); canvasCtx.lineTo(pointsB[i].x, pointsB[i].y); canvasCtx.stroke(); if (i < pointsA.length - 1) { canvasCtx.beginPath(); canvasCtx.moveTo(pointsA[i].x, pointsA[i].y); canvasCtx.lineTo(pointsA[i+1].x, pointsA[i+1].y); canvasCtx.stroke(); canvasCtx.beginPath(); canvasCtx.moveTo(pointsB[i].x, pointsB[i].y); canvasCtx.lineTo(pointsB[i+1].x, pointsB[i+1].y); canvasCtx.stroke(); } } canvasCtx.restore(); }
-        function applyWaveformFilter() { const w = canvasElement.width, h = canvasElement.height; if(w===0) return; const amplitude = (handValues[0]/1000 || 0.1) * h/2; const frequency = 0.1 + (handValues[1]/1000 || 0.2) * 5; const imageData = canvasCtx.getImageData(0,0,w,h); const data = imageData.data; canvasCtx.fillStyle='black'; canvasCtx.fillRect(0,0,w,h); canvasCtx.strokeStyle='#0f0'; canvasCtx.lineWidth = 2; canvasCtx.beginPath(); for(let x=0; x<w; x++) { const y = Math.floor(h/2 + (Math.sin(x/w * 2 * Math.PI * frequency) * amplitude)); const i = (y*w+x)*4; const brightness = ((data[i] + data[i+1] + data[i+2]) / 3 / 255 - 0.5); const finalY = h/2 + brightness * amplitude * 2; if(x===0) canvasCtx.moveTo(x, finalY); else canvasCtx.lineTo(x, finalY); } canvasCtx.stroke(); }
         function applyAsciiDistortFilter() { const w = canvasElement.width, h = canvasElement.height; if(w===0) return; const density = handValues[0] / 1000 || 0.5; const distortion = handValues[1] / 1000 || 0; const chars = " .:-=+*#%@"; const resolution = Math.max(8, Math.floor(25 - (density * 20))); const imageData = canvasCtx.getImageData(0, 0, w, h); const data = imageData.data; canvasCtx.fillStyle = 'black'; canvasCtx.fillRect(0,0,w,h); canvasCtx.fillStyle = '#0f0'; canvasCtx.font = `${resolution}px "Press Start 2P"`; for (let y = 0; y < h; y += resolution) { const yOffset = Math.sin(y/(h*0.1) + performance.now()*0.001) * distortion * 50; for (let x = 0; x < w; x += resolution) { const i = (y * w + x) * 4; const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3; const charIndex = Math.floor((brightness / 255) * (chars.length - 1)); canvasCtx.fillText(chars[charIndex], x, y + yOffset); } } }
         function applyParticleFlowFieldFilter() { const w = canvasElement.width, h = canvasElement.height; if(w===0 || !p5Instance) return; const speed = handValues[0] / 1000 || 0.2; const complexity = handValues[1] / 1000 || 0.3; const scale = 10 + (complexity * 40); const force = 0.5 + (speed * 4); if (flowFieldParticles.length === 0 && w > 0) { flowFieldParticles = []; for(let i=0; i<10500; i++) { flowFieldParticles.push({x: Math.random() * w, y: Math.random() * h}); } } canvasCtx.fillStyle = 'rgba(0,0,0,0.07)'; canvasCtx.fillRect(0,0,w,h); canvasCtx.fillStyle = '#0f0'; for(const p of flowFieldParticles) { const angle = p5Instance.noise(p.x / scale, p.y / scale) * Math.PI * 2 * (5 * complexity); p.x += Math.cos(angle) * force; p.y += Math.sin(angle) * force; if(p.x < 0) p.x = w; if(p.x > w) p.x = 0; if(p.y < 0) p.y = h; if(p.y > h) p.y = 0; canvasCtx.fillRect(p.x, p.y, 1, 1); } }
         function applyLissajousCyberscopeFilter() { const w = canvasElement.width, h = canvasElement.height; if(w===0) return; const freqX = 1 + Math.floor((handValues[0] / 1000) * 10) || 3; const freqY = 1 + Math.floor((handValues[1] / 1000) * 10) || 4; if (!lissajousParams.t) { lissajousParams = { t: 0, oldX: w/2, oldY: h/2 }; } canvasCtx.strokeStyle = '#0f0'; canvasCtx.lineWidth = 1.5; canvasCtx.shadowColor = '#0f0'; canvasCtx.shadowBlur = 8; canvasCtx.beginPath(); canvasCtx.moveTo(lissajousParams.oldX, lissajousParams.oldY); for (let i = 0; i < 50; i++) { lissajousParams.t += 0.002; const x = w/2 + (w/2.2) * Math.sin(freqX * lissajousParams.t); const y = h/2 + (h/2.2) * Math.cos(freqY * lissajousParams.t); canvasCtx.lineTo(x, y); lissajousParams.oldX = x; lissajousParams.oldY = y; } canvasCtx.stroke(); canvasCtx.shadowBlur = 0; canvasCtx.fillStyle = 'rgba(0,0,0,0.05)'; canvasCtx.fillRect(0,0,w,h); }
         function applyFrameBufferGlitchFilter() { const w = canvasElement.width, h = canvasElement.height; if(w===0 || !previousFrame) return; const ghosting = handValues[0]/1000 || 0; const corruption = handValues[1]/1000 || 0; if (ghosting > 0.05) { canvasCtx.globalAlpha = ghosting; canvasCtx.drawImage(previousFrame, 0, 0); canvasCtx.globalAlpha = 1; } for(let i=0; i < 20; i++) { if (Math.random() < corruption) { const sx = Math.random() * w; const sy = Math.random() * h; const sw = Math.random() * (w/4); const sh = Math.random() * (h/4); const dx = Math.random() * w; const dy = Math.random() * h; canvasCtx.drawImage(previousFrame, sx, sy, sw, sh, dx, dy, sw, sh); } } }
         function applyStrangeAttractorFilter() { const w = canvasElement.width, h = canvasElement.height; if (w === 0) return; if (!attractorParams.x) { attractorParams = { x: 0.1, y: 0.1 }; } const param1 = mapValue(handValues[0] || 500, 0, 1000, -2.5, 2.5); const param2 = mapValue(handValues[1] || 500, 0, 1000, -2.5, 2.5); const a = param1, b = -1.9, c = param2, d = -1.6; canvasCtx.fillStyle = `rgba(0, 0, 0, 0.05)`; canvasCtx.fillRect(0, 0, w, h); canvasCtx.fillStyle = '#0f0'; for (let i = 0; i < 50000; i++) { let nextX = Math.sin(a * attractorParams.y) + c * Math.cos(a * attractorParams.x); let nextY = Math.sin(b * attractorParams.x) + d * Math.cos(b * attractorParams.y); const logical_range = 4; const logical_min = -2; attractorParams.x = ((nextX - logical_min) % logical_range + logical_range) % logical_range + logical_min; attractorParams.y = ((nextY - logical_min) % logical_range + logical_range) % logical_range + logical_min; const plotX = mapValue(attractorParams.x, -2, 2, 0, w); const plotY = mapValue(attractorParams.y, -2, 2, 0, h); canvasCtx.fillRect(plotX, plotY, 1, 1); } }
-        function applyParticleSpectrogramFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; if (w === 0) return; const speed = 4; const baselineY = h - 50; const availableHeight = h - 50; canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); spectrogramParticles.forEach(p => { p.x -= speed; }); for(let i=0; i < 80; i++) { let yPos = baselineY - (Math.random() * availableHeight); let energy = p5Instance.noise(yPos * 0.01, performance.now() * 0.0005) * 0.1; if(multiHandLandmarks) { for(let j = 0; j < multiHandLandmarks.length; j++) { if(handValues[j] !== undefined) { const handY = mapValue(handValues[j], 0, 1000, h, 0); const peakStrength = 1.0; const influence = Math.exp(-Math.pow(yPos - handY, 2) / (2 * 40 * 40)); energy += influence * peakStrength; } } } energy = Math.min(energy, 1.0); if (Math.random() < energy) { spectrogramParticles.push({ x: w + (Math.random() - 0.5) * 10, y: yPos, life: 1.0, hue: 100 + energy * 60 }); } } spectrogramParticles.forEach(p => { canvasCtx.fillStyle = `hsla(${p.hue}, 100%, 70%, ${p.life})`; canvasCtx.fillRect(p.x, p.y, 2, 2); p.life -= 0.0025; }); spectrogramParticles = spectrogramParticles.filter(p => p.x > 0 && p.life > 0); }
         function applyHolographicRainFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; if(w===0) return; const repulsion = 1 + (handValues[0]/1000 || 0.2) * 200; const speed = 2 + (handValues[1]/1000 || 0.3) * 25; const katakana = "01"; if (holorainParticles.length === 0) for(let i=0; i<500; i++) holorainParticles.push({x:Math.random()*w, y:Math.random()*h, z:Math.random()*5, char: katakana[Math.floor(Math.random()*katakana.length)]}); canvasCtx.fillStyle = 'rgba(0,0,0,0.15)'; canvasCtx.fillRect(0,0,w,h); let repulsorPoints = []; if (multiHandLandmarks) { const FINGER_TIP_INDICES = [4, 8, 12, 16, 20]; for (const landmarks of multiHandLandmarks) { for (const index of FINGER_TIP_INDICES) { const tip = landmarks[index]; repulsorPoints.push({ x: (1 - tip.x) * w, y: tip.y * h }); } } } for (const p of holorainParticles) { p.y += speed / (p.z + 1); repulsorPoints.forEach(hnd => { const dx = p.x - hnd.x, dy = p.y - hnd.y; const dist = Math.hypot(dx, dy); if (dist < repulsion) { const forceFactor = 0.15; p.x += (dx/dist) * (repulsion-dist) * forceFactor; p.y += (dy/dist) * (repulsion-dist) * forceFactor; } }); if (p.y > h) { p.y = 0; p.x = Math.random()*w; } const size = 12 / (p.z + 1); canvasCtx.font = `${size}px "Press Start 2P"`; canvasCtx.fillStyle = `hsl(${120 + p.z*20}, 100%, 70%)`; canvasCtx.fillText(p.char, p.x, p.y); } }
         function applyWarpDriveFilter() { const w = canvasElement.width, h = canvasElement.height; if(w===0) return; const speed = (handValues[0]/1000 || 0.01) * 30; const fov = 128 + (handValues[1]/1000 || 0.5) * 400; if (warpdriveStars.length === 0) for(let i=0; i<1500; i++) warpdriveStars.push({x: (Math.random()-0.5)*w, y: (Math.random()-0.5)*h, z:Math.random()*w}); canvasCtx.fillStyle = 'black'; canvasCtx.fillRect(0,0,w,h); canvasCtx.save(); canvasCtx.translate(w/2, h/2); for(const s of warpdriveStars) { s.z -= speed; if(s.z <= 1) s.z = w; const scale = fov/s.z; const sx = s.x * scale, sy = s.y * scale; const old_sx = s.x * (fov / (s.z + speed*2)); const old_sy = s.y * (fov / (s.z + speed*2)); const alpha = (w-s.z)/w; canvasCtx.strokeStyle = `rgba(255,255,255,${alpha})`; canvasCtx.lineWidth = Math.max(1, scale*2); canvasCtx.beginPath(); canvasCtx.moveTo(old_sx, old_sy); canvasCtx.lineTo(sx, sy); canvasCtx.stroke(); } canvasCtx.restore(); }
         function applySynapticFeedbackFilter() { const w = canvasElement.width, h = canvasElement.height; if(w===0 || !previousFrame) return; const zoom = 1.005 + (handValues[0]/1000 || 0.1) * 0.01; const rgbShift = (handValues[1]/1000 || 0) * 5; canvasCtx.save(); canvasCtx.translate(w/2, h/2); canvasCtx.scale(zoom, zoom); canvasCtx.rotate((zoom-1)*0.1); canvasCtx.translate(-w/2, -h/2); canvasCtx.globalAlpha = 0.95; canvasCtx.drawImage(previousFrame, 0, 0, w, h); if (rgbShift > 0.1) { canvasCtx.globalCompositeOperation = 'lighter'; canvasCtx.drawImage(previousFrame, rgbShift, 0, w, h); canvasCtx.drawImage(previousFrame, -rgbShift, 0, w, h); canvasCtx.globalCompositeOperation = 'source-over'; } canvasCtx.restore(); const imageData = canvasCtx.getImageData(0,0,w,h); for(let i=0; i<100; i++) { const x = Math.floor(Math.random()*w), y = Math.floor(Math.random()*h); const b = (imageData.data[(y*w+x)*4] + imageData.data[(y*w+x)*4+1] + imageData.data[(y*w+x)*4+2])/3; if(b > 180) feedbackParticles.push({x, y, life: 50, color: `hsl(${Math.random()*60}, 100%, 80%)`}); } for(const p of feedbackParticles) { p.life--; canvasCtx.fillStyle = p.color; canvasCtx.globalAlpha = p.life/50; canvasCtx.fillRect(p.x, p.y, 2, 2); } feedbackParticles = feedbackParticles.filter(p => p.life > 0); canvasCtx.globalAlpha = 1; }
-        function applyMyceliumFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; if(w===0) return; const growthRate = (handValues[0]/1000 || 0.2); const glitchFactor = (handValues[1]/1000 || 0); if (myceliumParticles.length === 0) for(let i=0; i<10; i++) myceliumParticles.push({x:Math.random()*w, y:Math.random()*h, vx:0, vy:0, life:200}); canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); if (multiHandLandmarks && Math.random() < growthRate) { multiHandLandmarks.forEach(l => { const tip = l[8]; myceliumParticles.push({x:(1-tip.x)*w, y:tip.y*h, vx:0,vy:0, life:200}); }); } for (const p of myceliumParticles) { let closest = null, minDist = Infinity; for(const other of myceliumParticles) { if(p===other) continue; const d = Math.hypot(p.x-other.x, p.y-other.y); if(d<minDist){minDist=d; closest=other;} } if(closest && minDist < 200) { p.vx += (closest.x - p.x) * 0.001; p.vy += (closest.y - p.y) * 0.001; if(minDist < 50) { canvasCtx.beginPath(); canvasCtx.moveTo(p.x, p.y); canvasCtx.lineTo(closest.x, closest.y); canvasCtx.strokeStyle = `hsla(${120 + p.life}, 100%, 70%, 0.5)`; canvasCtx.stroke(); } } p.vx *= 0.95; p.vy *= 0.95; p.x+=p.vx; p.y+=p.vy; p.life--; if(Math.random() < glitchFactor * 0.1){p.x=Math.random()*w; p.y=Math.random()*h;} canvasCtx.fillStyle = `hsl(${120+p.life}, 100%, 80%)`; canvasCtx.fillRect(p.x-1,p.y-1,2,2); } myceliumParticles = myceliumParticles.filter(p=>p.life > 0); while(myceliumParticles.length > 500) myceliumParticles.shift(); }
         function applyAetherFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; if (w === 0) return; const viscosity = 0.85 + (handValues[0] / 1000 || 0.5) * 0.14; const turbulence = (handValues[1] / 1000 || 0.2) * 20; if (aetherParticles.length === 0 && w > 0) { for (let i = 0; i < 25000; i++) { aetherParticles.push({ x: Math.random() * w, y: Math.random() * h, vx: 0, vy: 0 }); } } canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0, 0, w, h); let handPos = []; if (multiHandLandmarks) { handPos = multiHandLandmarks.map(l => ({ x: (1 - l[8].x) * w, y: l[8].y * h })); } for (const p of aetherParticles) { handPos.forEach(hnd => { const dx = hnd.x - p.x, dy = hnd.y - p.y, dist = Math.hypot(dx, dy); if (dist < 150) { const force = (150 - dist) / 150; p.vx += dx / dist * force * turbulence * 0.1; p.vy += dy / dist * force * turbulence * 0.1; } }); p.vx *= viscosity; p.vy *= viscosity; p.x += p.vx; p.y += p.vy; if (p.x < 0) { p.x = w } if (p.x > w) { p.x = 0 } if (p.y < 0) { p.y = h } if (p.y > h) { p.y = 0 } canvasCtx.fillStyle = `hsl(180, 100%, 80%)`; canvasCtx.fillRect(p.x, p.y, 1, 1); } }
-        function applySwarmFilter() { const w = canvasElement.width, h = canvasElement.height; if(w===0) return; const c_real = mapValue(handValues[0] || 400, 0, 1000, -1, 1); const c_imag = mapValue(handValues[1] || 600, 0, 1000, -1, 1); if(swarmParticles.length === 0) for(let i=0; i<8000; i++) swarmParticles.push({x: (Math.random()-0.5)*4, y: (Math.random()-0.5)*4}); canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); canvasCtx.fillStyle = '#0f0'; for(const p of swarmParticles) { const xtemp = p.x*p.x - p.y*p.y + c_real; p.y = 2*p.x*p.y + c_imag; p.x = xtemp; if(p.x*p.x + p.y*p.y > 4) {p.x=(Math.random()-0.5)*4; p.y=(Math.random()-0.5)*4;} const sx = p.x * w/4 + w/2; const sy = p.y * h/4 + h/2; canvasCtx.fillRect(sx, sy, 1, 1); } }
-        function applyTesseractFilter() { const w = canvasElement.width, h = canvasElement.height; if (w === 0) return; tesseractState.angleXY += 0.005; tesseractState.angleZW += 0.007; if (handValues[0] !== undefined) { tesseractState.angleXY = mapValue(handValues[0], 0, 1000, 0, Math.PI * 4); tesseractState.angleYZ = handAngles[0] * 2; } if (handValues[1] !== undefined) { tesseractState.angleXW = mapValue(handValues[1], 0, 1000, 0, Math.PI * 4); tesseractState.angleYW = handAngles[1] * 2; } let vertices = []; for (let i = 0; i < 16; i++) { vertices.push({ x: (i & 1) ? -1 : 1, y: (i & 2) ? -1 : 1, z: (i & 4) ? -1 : 1, w: (i & 8) ? -1 : 1 }); } function rotate(v, axis1, axis2, angle) { const c = Math.cos(angle), s = Math.sin(angle); const v1 = v[axis1], v2 = v[axis2]; v[axis1] = v1 * c - v2 * s; v[axis2] = v1 * s + v2 * c; } vertices.forEach(v => { rotate(v, 'x', 'y', tesseractState.angleXY); rotate(v, 'y', 'z', tesseractState.angleYZ || 0); rotate(v, 'x', 'w', tesseractState.angleXW || 0); rotate(v, 'y', 'w', tesseractState.angleYW || 0); rotate(v, 'z', 'w', tesseractState.angleZW); }); let projected = vertices.map(v => { const perspective = 1.5; const distance = perspective / (perspective - v.w); const projected3D = { x: v.x * distance, y: v.y * distance, z: v.z * distance }; const scale = Math.min(w, h) / 4; return { x: projected3D.x * scale, y: projected3D.y * scale, originalW: v.w }; }); canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0, 0, w, h); canvasCtx.save(); canvasCtx.translate(w / 2, h / 2); canvasCtx.strokeStyle = '#0f0'; canvasCtx.shadowColor = '#0f0'; canvasCtx.shadowBlur = 10; for (let i = 0; i < 16; i++) { for (let j = i + 1; j < 16; j++) { const diff = i ^ j; if ((diff & (diff - 1)) === 0) { const p1 = projected[i]; const p2 = projected[j]; const avgW = (p1.originalW + p2.originalW) / 2; canvasCtx.lineWidth = mapValue(avgW, -1, 1, 0.5, 2.5); canvasCtx.globalAlpha = mapValue(avgW, -1, 1, 0.4, 1.0); canvasCtx.beginPath(); canvasCtx.moveTo(p1.x, p1.y); canvasCtx.lineTo(p2.x, p2.y); canvasCtx.stroke(); } } } canvasCtx.globalAlpha = 1.0; canvasCtx.shadowBlur = 0; canvasCtx.restore(); }
         function applyContainmentFilter() { const w = canvasElement.width, h = canvasElement.height; if (w === 0) return; const strength = 0.01 + (handValues[0] / 1000 || 0.3) * 0.1; const volatility = (handValues[1] / 1000 || 0.1); const zoomFactor = 1 + volatility * 12; if (containmentParticles.length === 0) { for (let i = 0; i < 9000; i++) { const spawnRadiusX = w * 4; const spawnRadiusY = h * 4; containmentParticles.push({ x: w / 2 + (Math.random() - 0.5) * spawnRadiusX, y: h / 2 + (Math.random() - 0.5) * spawnRadiusY, vx: 0, vy: 0 }); } } canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0, 0, w, h); const centerX = w / 2; const centerY = h / 2; for (const p of containmentParticles) { p.vx += (centerX - p.x) * strength; p.vy += (centerY - p.y) * strength; p.vx *= 0.9; p.vy *= 0.9; p.x += p.vx; p.y += p.vy; if (Math.random() < volatility * 0.01) { const angle = Math.random() * 2 * Math.PI; const force = volatility * 10; p.vx += Math.cos(angle) * force; p.vy += Math.sin(angle) * force; } const relativeX = p.x - centerX; const relativeY = p.y - centerY; const drawX = centerX + relativeX * zoomFactor; const drawY = centerY + relativeY * zoomFactor; canvasCtx.fillStyle = '#0f0'; canvasCtx.fillRect(drawX, drawY, 1, 1); } }
-        function applyCryoShardsFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; if(w===0) return; const crystalRate = (handValues[0]/1000 || 0.2); const heat = 1 + (handValues[1]/1000 || 0.1)*200; canvasCtx.fillStyle='rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); if(Math.random() < crystalRate) for(let i=0; i<5; i++) cryoShards.push({x:Math.random()*w, y:Math.random()*h, life:100}); let handPos = []; if (multiHandLandmarks) handPos = multiHandLandmarks.map(l => ({x: (1-l[0].x)*w, y:l[0].y*h})); cryoShards.forEach((s, i) => { s.life--; let closest=null, minDist=Infinity; cryoShards.forEach((o,j)=>{if(i===j)return; const d=Math.hypot(s.x-o.x, s.y-o.y); if(d<minDist){minDist=d; closest=o;}}); if(closest && minDist < 100){ canvasCtx.beginPath(); canvasCtx.moveTo(s.x, s.y); canvasCtx.lineTo(closest.x, closest.y); canvasCtx.strokeStyle=`rgba(180, 220, 255, ${s.life/100 * 0.5})`; canvasCtx.stroke();} handPos.forEach(hnd => {if(Math.hypot(s.x-hnd.x, s.y-hnd.y) < heat){s.life=0; for(let k=0; k<5;k++)cryoParticles.push({x:s.x, y:s.y, vx:(Math.random()-0.5), vy:(Math.random()-0.5)-1, life:50});}}); }); cryoShards = cryoShards.filter(s=>s.life>0); while(cryoShards.length > 300) cryoShards.shift(); cryoParticles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life--; canvasCtx.fillStyle=`rgba(200,230,255,${p.life/50})`; canvasCtx.fillRect(p.x,p.y,2,2);}); cryoParticles = cryoParticles.filter(p=>p.life>0); }
+        function applyCryoShardsFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; if(w===0) return; const crystalRate = (handValues[0]/1000 || 0.2); const heat = 1 + (handValues[1]/1000 || 0.1)*200; canvasCtx.fillStyle='rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); if(Math.random() < crystalRate) for(let i=0; i<5; i++) cryoShards.push({x:Math.random()*w, y:Math.random()*h, life:100}); let handPos = []; if (multiHandLandmarks) handPos = multiHandLandmarks.map(l => ({x: (1-l[8].x)*w, y:l[8].y*h})); cryoShards.forEach((s, i) => { s.life--; let closest=null, minDist=Infinity; cryoShards.forEach((o,j)=>{if(i===j)return; const d=Math.hypot(s.x-o.x, s.y-o.y); if(d<minDist){minDist=d; closest=o;}}); if(closest && minDist < 100){ canvasCtx.beginPath(); canvasCtx.moveTo(s.x, s.y); canvasCtx.lineTo(closest.x, closest.y); canvasCtx.strokeStyle=`rgba(180, 220, 255, ${s.life/100 * 0.5})`; canvasCtx.stroke();} handPos.forEach(hnd => { if(s.life > 0 && Math.hypot(s.x-hnd.x, s.y-hnd.y) < heat){ s.life=0; for(let k=0; k<10; k++) cryoParticles.push({x:s.x, y:s.y, vx:(Math.random()-0.5) * 4, vy:(Math.random()-0.5)*4 - 1.5, life:60}); if(closest && minDist < 100){ closest.life = 0; for(let k=0; k<10; k++) cryoParticles.push({x:closest.x, y:closest.y, vx:(Math.random()-0.5) * 4, vy:(Math.random()-0.5)*4 - 1.5, life:60}); const numLineParticles = 20; for (let j = 1; j < numLineParticles; j++) { const t = j / numLineParticles; const px = s.x + (closest.x - s.x) * t; const py = s.y + (closest.y - s.y) * t; cryoParticles.push({x: px, y: py, vx:(Math.random()-0.5) * 4, vy:(Math.random()-0.5)*4 - 1.5, life: 60}); } } } }); }); cryoShards = cryoShards.filter(s=>s.life>0); while(cryoShards.length > 300) cryoShards.shift(); cryoParticles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life--; canvasCtx.fillStyle=`rgba(200,230,255,${p.life/50})`; canvasCtx.fillRect(p.x,p.y,2,2);}); cryoParticles = cryoParticles.filter(p=>p.life>0); }
         function applyGravityWellFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; if (w === 0) return; const mass1 = (handValues[0] / 1000 || 0.3) * 2000; const mass2 = (handValues[1] / 1000 || 0.3) * 2000; let wells = [{ x: w / 4, y: h / 2, mass: mass1 }, { x: w * 3 / 4, y: h / 2, mass: mass2 }]; if (multiHandLandmarks && multiHandLandmarks.length > 0) { wells[0].x = (1 - multiHandLandmarks[0][8].x) * w; wells[0].y = multiHandLandmarks[0][8].y * h; } if (multiHandLandmarks && multiHandLandmarks.length > 1) { wells[1].x = (1 - multiHandLandmarks[1][8].x) * w; wells[1].y = multiHandLandmarks[1][8].y * h; } if (gravityParticles.length === 0 && w > 0) { for (let i = 0; i < 50000; i++) { gravityParticles.push({ x: Math.random() * w, y: Math.random() * h, vx: 0, vy: 0 }); } } canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0, 0, w, h); for (const p of gravityParticles) { wells.forEach(well => { const dx = well.x - p.x, dy = well.y - p.y, distSq = dx * dx + dy * dy; if (distSq > 400) { const force = well.mass / distSq; p.vx += dx * force; p.vy += dy * force; } }); p.x += p.vx; p.y += p.vy; p.vx *= 0.99; p.vy *= 0.99; if (p.x < 0 || p.x > w || p.y < 0 || p.y > h) { p.x = Math.random() * w; p.y = Math.random() * h; p.vx = 0; p.vy = 0; } canvasCtx.fillStyle = '#0f0'; canvasCtx.fillRect(p.x, p.y, 1, 1); } }
         function applyVoxelDecompFilter() { const w = canvasElement.width, h = canvasElement.height; if(w===0) return; const resolution = 5 + Math.floor((1-(handValues[0]/1000||0.5))*30); const entropy = (handValues[1]/1000||0.1); const imageData = videoElement.videoWidth > 0 ? canvasCtx.getImageData(0,0,w,h) : null; canvasCtx.fillStyle='rgba(0,0,0,0.2)'; canvasCtx.fillRect(0,0,w,h); if(imageData) { for(let y=0; y<h; y+=resolution) { for(let x=0; x<w; x+=resolution) { const i=(y*w+x)*4; const color=`rgb(${imageData.data[i]}, ${imageData.data[i+1]}, ${imageData.data[i+2]})`; if(Math.random() < entropy*0.1) { for(let k=0; k<3; k++) { voxelDecompParticles.push({x:x, y:y, vx:(Math.random()-0.5), vy:0, life:100, color:color}); } } else { canvasCtx.fillStyle = color; canvasCtx.fillRect(x, y, resolution, resolution); } } } } for(const p of voxelDecompParticles) { p.x+=p.vx; p.y+=p.vy; p.vy+=0.1; p.life--; canvasCtx.fillStyle=p.color; canvasCtx.globalAlpha = p.life/100; canvasCtx.fillRect(p.x,p.y,3,3); } voxelDecompParticles = voxelDecompParticles.filter(p=>p.life>0); canvasCtx.globalAlpha=1; }
         function applyBifurcationFilter() { const w=canvasElement.width, h=canvasElement.height; if(w===0)return; const r_min = 2.8 + (handValues[0]/1000||0)*1.1; const r_range = 0.1 + (1-(handValues[0]/1000||0))*0.1; const density = 100 + (handValues[1]/1000||0.2)*400; canvasCtx.fillStyle='rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); canvasCtx.fillStyle='#0f0'; for(let i=0; i<density*10; i++){ const r = r_min + (Math.random()*r_range); let x=0.5; for(let j=0; j<500; j++) x = r*x*(1-x); for(let j=0; j<50; j++){ x = r*x*(1-x); const px = mapValue(r, r_min, r_min+r_range, 0, w); const py = mapValue(x, 0, 1, h, 0); canvasCtx.fillRect(px,py,1,1); } } }
         function applyRelativisticJetFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; if (w === 0) return; let emitters = []; if (multiHandLandmarks && multiHandLandmarks.length > 0) { for(let i = 0; i < multiHandLandmarks.length; i++) { const landmarks = multiHandLandmarks[i]; const tip = landmarks[8]; const currentHandValue = handValues[i] || 200; const currentTurbulence = (handValues[i === 0 ? 1 : 0] / 1000 || 0.1) * 0.2; emitters.push({ x: (1 - tip.x) * w, y: tip.y * h, collimation: mapValue(currentHandValue, 0, 1000, 0.5, 0.01), turbulence: currentTurbulence }); } } else { emitters.push({ x: w / 2, y: h, collimation: 0.2, turbulence: 0.1 }); } canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0, 0, w, h); for (const emitter of emitters) { const particlesPerEmitter = 75; for (let i = 0; i < particlesPerEmitter; i++) { const angle = (Math.random() - 0.5) * emitter.collimation * Math.PI; jetParticles.push({ x: emitter.x, y: emitter.y, vx: Math.sin(angle), vy: -Math.cos(angle), life: 100, turbulence: emitter.turbulence }); } } for (const p of jetParticles) { p.x += p.vx * p.life * 0.1; p.y += p.vy * p.life * 0.1; p.vy += (p5Instance.noise(p.x * 0.01, performance.now() * 0.0001) - 0.5) * p.turbulence; p.life--; const hue = 120 + p.life / 3; canvasCtx.fillStyle = `hsla(${hue}, 100%, 70%, ${p.life / 100})`; canvasCtx.beginPath(); canvasCtx.arc(p.x, p.y, p.life / 50, 0, Math.PI * 2); canvasCtx.fill(); } jetParticles = jetParticles.filter(p => p.life > 0 && p.x > 0 && p.x < w && p.y > 0 && p.y < h); }
-        function applyLorenzAttractorFilter() { const w=canvasElement.width, h=canvasElement.height; if(w===0)return; const sigma=10; const rho=mapValue(handValues[1]||800,0,1000,20,40); const beta=8/3; const dt=0.01; canvasCtx.fillStyle='rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); canvasCtx.save(); canvasCtx.translate(w/2, h/2); for(let i=0; i<500; i++){ const dx = (sigma * (lorenzState.y - lorenzState.x)) * dt; const dy = (lorenzState.x * (rho - lorenzState.z) - lorenzState.y) * dt; const dz = (lorenzState.x * lorenzState.y - beta * lorenzState.z) * dt; lorenzState.x+=dx; lorenzState.y+=dy; lorenzState.z+=dz; const scale = mapValue(handValues[0]||500,0,1000,5,15); const px = lorenzState.x * scale; const py = lorenzState.z * scale - (scale*25); canvasCtx.fillStyle = `hsl(${180+lorenzState.y*2}, 100%, 70%)`; canvasCtx.fillRect(px,py,1,1); } canvasCtx.restore(); }
-        function applyHexTilingFilter(multiHandLandmarks) { const w = canvasElement.width, h = canvasElement.height; if (w===0) return; const speed = mapValue(handValues[0] || 0, 0, 1000, 0.2, 0.01); const size = 10 + (handValues[1]/1000||0.5)*40; if(hextileGrid.length===0 || hextileGrid[0].size !== size){ hextileGrid = []; const hexW=size*2, hexH=Math.sqrt(3)*size; for(let y=0,r=0; y<h+hexH; y+=hexH/2, r++){ for(let x=0,c=0; x<w+hexW; x+=(hexW*3/4), c++){ hextileGrid.push({x:x+(r%2)*(hexW*3/8), y:y, energy:0, size:size}); } } } canvasCtx.fillStyle='rgba(0,0,0,0.2)'; canvasCtx.fillRect(0,0,w,h); let handPos = []; if(multiHandLandmarks) { handPos = multiHandLandmarks.map(l => ({x: (1-l[8].x)*w, y:l[8].y*h})); } hextileGrid.forEach(hex => { handPos.forEach(hnd => { if(Math.hypot(hex.x-hnd.x, hex.y-hnd.y) < size*2) hex.energy = 1; }); hex.energy -= speed; if(hex.energy<0) hex.energy=0; if(hex.energy>0.01){ canvasCtx.strokeStyle = `rgba(0,255,0,${hex.energy})`; canvasCtx.lineWidth = 1+hex.energy*2; canvasCtx.beginPath(); for(let i=0;i<7;i++){ const angle=Math.PI/3*i-Math.PI/6; canvasCtx.lineTo(hex.x+size*Math.cos(angle), hex.y+size*Math.sin(angle)); } canvasCtx.stroke(); } }); }
-        function applyDeJongFilter() { const w=canvasElement.width, h=canvasElement.height; if(w===0)return; const a=mapValue(handValues[0]||500,0,1000,-Math.PI,Math.PI); const b=mapValue(handValues[1]||500,0,1000,-Math.PI,Math.PI); const c=-2.5, d=1.6; canvasCtx.fillStyle='rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); canvasCtx.save(); canvasCtx.translate(w/2, h/2); for(let i=0; i<5000; i++){ const nextX = Math.sin(a*deJongState.y) - Math.cos(b*deJongState.x); const nextY = Math.sin(c*deJongState.x) - Math.cos(d*deJongState.y); deJongState.x = nextX; deJongState.y = nextY; const scale = w/4; canvasCtx.fillStyle='#0f0'; canvasCtx.fillRect(deJongState.x*scale, deJongState.y*scale, 1, 1); } canvasCtx.restore(); }
+        function applyLorenzAttractorFilter() { const w=canvasElement.width, h=canvasElement.height; if(w===0)return; if (!handValues || handValues.length === 0) { return; } const rho = mapValue(handValues[0], 0, 1000, 24, 90); const scale = mapValue(handValues.length > 1 ? handValues[1] : 500, 0, 1000, 4, 15); const sigma=10; const beta=8/3; const dt=0.01; const z_center=rho-1; canvasCtx.fillStyle='rgba(0,0,0,0.1)'; canvasCtx.fillRect(0,0,w,h); canvasCtx.save(); canvasCtx.translate(w/2, h/2); canvasCtx.fillStyle='#0f0'; for(let i=0; i<30000; i++){ const dx = (sigma * (lorenzState.y - lorenzState.x)) * dt; const dy = (lorenzState.x * (rho - lorenzState.z) - lorenzState.y) * dt; const dz = (lorenzState.x * lorenzState.y - beta * lorenzState.z) * dt; lorenzState.x+=dx; lorenzState.y+=dy; lorenzState.z+=dz; if (Math.abs(lorenzState.x) > 100 || Math.abs(lorenzState.y) > 100 || Math.abs(lorenzState.z) > 200) { lorenzState = { x: 0.1, y: 0, z: 0 }; continue; } const px = lorenzState.x * scale; const py = (lorenzState.z - z_center) * scale; canvasCtx.fillRect(px,py,1,1); } canvasCtx.restore(); }
         function applyCliffordFilter() { const w = canvasElement.width, h = canvasElement.height; if (w === 0) return; const a = mapValue(handValues[0] || 500, 0, 1000, -2, 2); const b = mapValue(handValues[1] || 500, 0, 1000, -2, 2); const c = -1.2, d = -1.2; canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0, 0, w, h); canvasCtx.fillStyle = '#0f0'; for (let i = 0; i < 50000; i++) { const nextX = Math.sin(a * cliffordState.y) + c * Math.cos(a * cliffordState.x); const nextY = Math.sin(b * cliffordState.x) + d * Math.cos(b * cliffordState.y); const logical_range = 4; const logical_min = -2; cliffordState.x = ((nextX - logical_min) % logical_range + logical_range) % logical_range + logical_min; cliffordState.y = ((nextY - logical_min) % logical_range + logical_range) % logical_range + logical_min; const plotX = mapValue(cliffordState.x, -2, 2, 0, w); const plotY = mapValue(cliffordState.y, -2, 2, 0, h); canvasCtx.fillRect(plotX, plotY, 1, 1); } }
         function applyHopalongFilter() { const w = canvasElement.width, h = canvasElement.height; if (w === 0) return; const currentTime = performance.now(); if (hopalongLastResetTime === 0) { hopalongLastResetTime = currentTime; } if (currentTime - hopalongLastResetTime > 30000) { hopalongState = {x: 0, y: 0}; hopalongLastResetTime = currentTime; } const a = mapValue(handValues[0] || 500, 0, 1000, -Math.PI, Math.PI); const hand2Value = handValues[1] || 700; const b = mapValue(hand2Value, 0, 1000, 0.1, 2.0); const c = mapValue(hand2Value, 0, 1000, 0, 10); const scale = mapValue(hand2Value, 0, 1000, w / 40, w / 800); canvasCtx.fillStyle = 'rgba(0,0,0,0.1)'; canvasCtx.fillRect(0, 0, w, h); canvasCtx.save(); canvasCtx.translate(w / 2, h / 2); canvasCtx.fillStyle = '#0f0'; for (let i = 0; i < 25000; i++) { const nextX = hopalongState.y - Math.sign(hopalongState.x) * Math.sqrt(Math.abs(b * hopalongState.x - c)); const nextY = a - hopalongState.x; hopalongState.x = nextX; hopalongState.y = nextY; let drawX = hopalongState.x * scale; let drawY = hopalongState.y * scale; const halfW = w / 2; const halfH = h / 2; if (drawX > halfW) { drawX -= w; } else if (drawX < -halfW) { drawX += w; } if (drawY > halfH) { drawY -= h; } else if (drawY < -halfH) { drawY += h; } canvasCtx.fillRect(drawX, drawY, 1, 1); } canvasCtx.restore(); }
         
-        const filterFunctions = { 'bleed': applyDataBleedFilter, 'ascii': applyAsciiFilter, 'neural': applyNeuralNetworkFilter, 'voronoi': applyVoronoiShatterFilter, 'virtualboy': applyVirtualBoyFilter, 'synapse': applyCyberSynapseFilter, 'trace': applyTraceCorridorsFilter, 'orbital': applyOrbitalArrayFilter, 'glyphs': applyGlitchGlyphsFilter, 'hive': applyDigitalHiveFilter, 'liquidflow': applyLiquidFlowFilter, 'spectral': applySpectralGridFilter, 'modeler': applyNeuralModelerFilter, 'waveform': applyWaveformFilter, 'asciidistort': applyAsciiDistortFilter, 'flowfield': applyParticleFlowFieldFilter, 'cyberscope': applyLissajousCyberscopeFilter, 'frameglitch': applyFrameBufferGlitchFilter, 'attractor': applyStrangeAttractorFilter, 'spectrogram': applyParticleSpectrogramFilter, 'holorain': applyHolographicRainFilter, 'warpdrive': applyWarpDriveFilter, 'feedback': applySynapticFeedbackFilter, 'mycelium': applyMyceliumFilter, 'aether': applyAetherFilter, 'swarm': applySwarmFilter, 'tesseract': applyTesseractFilter, 'containment': applyContainmentFilter, 'cryoshards': applyCryoShardsFilter, 'gravity_well': applyGravityWellFilter, 'voxel_decomp': applyVoxelDecompFilter, 'bifurcation': applyBifurcationFilter, 'jet': applyRelativisticJetFilter, 'lorenz': applyLorenzAttractorFilter, 'hextile': applyHexTilingFilter, 'dejong': applyDeJongFilter, 'clifford': applyCliffordFilter, 'hopalong': applyHopalongFilter };
+        const filterFunctions = { 'bleed': applyDataBleedFilter, 'ascii': applyAsciiFilter, 'neural': applyNeuralNetworkFilter, 'voronoi': applyVoronoiShatterFilter, 'virtualboy': applyVirtualBoyFilter, 'synapse': applyCyberSynapseFilter, 'trace': applyTraceCorridorsFilter, 'orbital': applyOrbitalArrayFilter, 'hive': applyDigitalHiveFilter, 'liquidflow': applyLiquidFlowFilter, 'spectral': applySpectralGridFilter, 'modeler': applyNeuralModelerFilter, 'asciidistort': applyAsciiDistortFilter, 'flowfield': applyParticleFlowFieldFilter, 'cyberscope': applyLissajousCyberscopeFilter, 'frameglitch': applyFrameBufferGlitchFilter, 'attractor': applyStrangeAttractorFilter, 'holorain': applyHolographicRainFilter, 'warpdrive': applyWarpDriveFilter, 'feedback': applySynapticFeedbackFilter, 'aether': applyAetherFilter, 'containment': applyContainmentFilter, 'cryoshards': applyCryoShardsFilter, 'gravity_well': applyGravityWellFilter, 'voxel_decomp': applyVoxelDecompFilter, 'bifurcation': applyBifurcationFilter, 'jet': applyRelativisticJetFilter, 'lorenz': applyLorenzAttractorFilter, 'clifford': applyCliffordFilter, 'hopalong': applyHopalongFilter };
 
         // --- SECTION DE CONFIGURATION ET ÉVÉNEMENTS ---
         const camera = new Camera(videoElement, { onFrame: async () => { if (videoElement.readyState >= 2) { await hands.send({ image: videoElement }); if (settings.isFaceDetectionActive) { await faceDetection.send({ image: videoElement }); } } }, width: 1280, height: 720 });
@@ -1072,12 +1062,11 @@
             
             previousFrame = null;
             if(canvasElement.width > 0) {
-                const filterStatesToReset = [glyphColumns, flowParticles, traceWalkers, synapseParticles, flowFieldParticles, attractorParams, spectrogramParticles, holorainParticles, warpdriveStars, feedbackParticles, myceliumParticles, aetherParticles, swarmParticles, containmentParticles, cryoShards, cryoParticles, gravityParticles, voxelDecompParticles, bifurcationParticles, jetParticles, hextileGrid];
+                const filterStatesToReset = [flowParticles, traceWalkers, synapseParticles, flowFieldParticles, attractorParams, holorainParticles, warpdriveStars, feedbackParticles, aetherParticles, containmentParticles, cryoShards, cryoParticles, gravityParticles, voxelDecompParticles, bifurcationParticles, jetParticles, hextileGrid];
                 filterStatesToReset.forEach(state => { if(Array.isArray(state)) state.length = 0; else if(typeof state === 'object') { for (const key in state) delete state[key]; }});
                 lissajousParams = {};
-                tesseractState = { angleXY: 0, angleZW: 0, angleXW: 0, angleYW: 0, angleYZ: 0 };
                 lorenzState = { x: 0.1, y: 0, z: 0 };
-                deJongState = {x: 0, y: 0}; cliffordState = {x: 0, y: 0}; hopalongState = {x: 0, y: 0};
+                cliffordState = {x: 0, y: 0}; hopalongState = {x: 0, y: 0};
                 hopalongLastResetTime = 0;
             }
             updateFilterMenuLayout(); 
@@ -1121,12 +1110,11 @@
             faceDetectionCheckbox.checked = false;
             settings.maxNumHands = 2; settings.selectedFilter = 'ascii'; settings.isFilterActive = false;
             settings.isFaceDetectionActive = false;
-            const filterStatesToReset = [glyphColumns, flowParticles, traceWalkers, synapseParticles, flowFieldParticles, attractorParams, spectrogramParticles, holorainParticles, warpdriveStars, feedbackParticles, myceliumParticles, aetherParticles, swarmParticles, containmentParticles, cryoShards, cryoParticles, gravityParticles, voxelDecompParticles, bifurcationParticles, jetParticles, hextileGrid];
+            const filterStatesToReset = [flowParticles, traceWalkers, synapseParticles, flowFieldParticles, attractorParams, holorainParticles, warpdriveStars, feedbackParticles, aetherParticles, containmentParticles, cryoShards, cryoParticles, gravityParticles, voxelDecompParticles, bifurcationParticles, jetParticles, hextileGrid];
             filterStatesToReset.forEach(state => { if(Array.isArray(state)) state.length = 0; else if(typeof state === 'object') { for (const key in state) delete state[key]; }});
             lissajousParams = {};
-            tesseractState = { angleXY: 0, angleZW: 0, angleXW: 0, angleYW: 0, angleYZ: 0 };
             lorenzState = { x: 0.1, y: 0, z: 0 };
-            deJongState = {x: 0, y: 0}; cliffordState = {x: 0, y: 0}; hopalongState = {x: 0, y: 0};
+            cliffordState = {x: 0, y: 0}; hopalongState = {x: 0, y: 0};
             hopalongLastResetTime = 0;
             initializeHands();
         });
