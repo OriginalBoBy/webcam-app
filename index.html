@@ -46,66 +46,72 @@
             z-index: 15;
             padding: 5px;
             transition: background-color 0.2s;
-            line-height: 1.5; /* Ajout pour l'espacement */
+            line-height: 1.5; 
         }
         #title_link:hover {
             background-color: rgba(0, 255, 0, 0.1);
         }
         
-        /* --- STYLES POUR LE MENU DÉPLIANT --- */
-        #gui {
+        /* --- STYLES POUR LE NOUVEAU MENU --- */
+        #show_gui_button {
             position: absolute;
             top: 10px;
             right: 10px;
-            width: auto; /* Modifié de 150px à auto */
-            z-index: 10;
-        }
-        #gui_toggle {
             background-color: transparent;
             color: #0f0;
             border: 1px solid #0f0;
             border-radius: 6px;
             cursor: pointer;
             font-family: "Press Start 2P", monospace;
-            width: 42px; /* Modifié */
-            height: 42px; /* Modifié */
+            width: 50px; /* --- MODIFIÉ --- */
+            height: 50px; /* --- MODIFIÉ --- */
             text-shadow: 0 0 3px #0f0;
             transition: background-color 0.2s;
-            display: flex; /* Ajouté */
-            align-items: center; /* Ajouté */
-            justify-content: center; /* Ajouté */
-            font-size: 7px; /* Modifié */
-            text-align: center; /* Ajouté */
-            line-height: 1.1em; /* Ajouté */
-            padding: 2px; /* Modifié */
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 7px; 
+            text-align: center; 
+            padding: 2px; 
+            z-index: 10;
         }
-        #gui_toggle:hover {
+        #show_gui_button:hover {
             background-color: rgba(0, 255, 0, 0.1);
         }
-        #gui_content {
+
+        #gui {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 170px; 
+            z-index: 10;
             background: rgba(0, 0, 0, 0.7);
             padding: 8px;
             border: 1px solid #0f0;
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-            max-height: 500px; /* Hauteur max pour l'animation */
-            overflow: hidden;
-            transition: max-height 0.4s ease-out, padding 0.4s ease-out, border 0.4s;
-            width: 150px; /* Ajout d'une largeur fixe ici */
+            border-radius: 6px;
         }
-        #gui_content.collapsed {
-            max-height: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-            border-width: 0 1px;
+        
+        #hide_gui_button {
+            background-color: transparent;
+            color: #0f0;
+            padding: 4px 6px;
+            margin-bottom: 10px;
+            border: 1px solid #0f0;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: "Press Start 2P", monospace;
+            font-size: 7px;
+            width: 100%;
         }
-        /* --- FIN DES NOUVEAUX STYLES --- */
+        #hide_gui_button:hover { 
+            background-color: rgba(0, 255, 0, 0.1); 
+        }
 
         .gui-item {
             display: flex;
             align-items: center;
             margin-bottom: 6px;
-            justify-content: flex-end;
+            justify-content: space-between;
         }
         #gui label {
             color: #fff;
@@ -120,8 +126,7 @@
             font-family: "Press Start 2P", monospace;
             font-size: 7px;
             padding: 1px;
-            width: 100%;
-            min-width: 65px;
+            width: 80px;
         }
         #gui input[type="checkbox"] {
             appearance: none;
@@ -137,7 +142,7 @@
             background-color: #0f0;
             box-shadow: 0 0 3px #0f0;
         }
-        #gui button {
+        #gui #reset_button {
             background-color: transparent;
             color: #0f0;
             padding: 4px 6px;
@@ -147,8 +152,11 @@
             font-family: "Press Start 2P", monospace;
             font-size: 7px;
             width: 100%;
+            margin-top: 5px;
         }
-        #gui button:hover { background-color: rgba(0, 255, 0, 0.1); }
+        #gui #reset_button:hover { background-color: rgba(0, 255, 0, 0.1); }
+        /* --- FIN DES STYLES DU NOUVEAU MENU --- */
+
         #start_game_button {
             position: absolute;
             bottom: 20px;
@@ -259,7 +267,7 @@
             background: transparent;
             cursor: pointer;
         }
-        #gui input[type="range"] { width: 60px; }
+        #gui input[type="range"] { width: 80px; }
         #volume_control input[type="range"] { width: 80px; }
         
         /* Track */
@@ -396,65 +404,63 @@
         <div id="hand_cursor_1" class="hand-cursor"></div>
         <div id="hand_cursor_2" class="hand-cursor"></div>
 
-        <!-- NOUVELLE STRUCTURE DU MENU DÉPLIANT -->
-        <div id="gui">
-            <button id="gui_toggle">SETTINGS</button>
-            <div id="gui_content" class="collapsed">
-                <div class="gui-item">
-                    <label for="max_num_hands">Max Hands:</label>
-                    <input type="range" id="max_num_hands" min="1" max="4" step="1" value="2">
-                </div>
-                <div class="gui-item">
-                    <label for="filter_select">Filter:</label>
-                    <select id="filter_select">
-                        <option value="ascii">ASCII Terminal</option>
-                        <option value="bleed">Data Bleed</option>
-                        <option value="neural">Neural Network</option>
-                        <option value="voronoi">Voronoi Shatter</option>
-                        <option value="virtualboy">VIRTUAL BOY</option>
-                        <option value="synapse">Cyber Synapse</option>
-                        <option value="trace">Trace Corridors</option>
-                        <option value="orbital">Orbital Array</option>
-                        <option value="hive">Digital Hive</option>
-                        <option value="liquidflow">Liquid Flow</option>
-                        <option value="spectral">Spectral Grid</option>
-                        <option value="modeler">Neural Modeler</option>
-                        <option value="asciidistort">ASCII Distort</option>
-                        <option value="flowfield">Particle Flow Field</option>
-                        <option value="cyberscope">Lissajous Cyberscope</option>
-                        <option value="frameglitch">Frame Buffer Glitch</option>
-                        <option value="attractor">Strange Attractor</option>
-                        <option value="holorain">Holographic Rain</option>
-                        <option value="warpdrive">Warp Drive</option>
-                        <option value="feedback">Synaptic Feedback</option>
-                        <option value="aether">Aetherial Fluid</option>
-                        <option value="containment">Antimatter Containment</option>
-                        <option value="cryoshards">Cryo-Shards</option>
-                        <option value="gravity_well">Gravity Well Emitter</option>
-                        <option value="voxel_decomp">Voxelated Decomposition</option>
-                        <option value="bifurcation">Bifurcation Diagram</option>
-                        <option value="jet">Relativistic Jet</option>
-                        <option value="lorenz">Lorenz Attractor</option>
-                        <option value="clifford">Clifford Attractor</option>
-                        <option value="hopalong">Hopalong Attractor</option>
-                    </select>
-                </div>
-                <div class="gui-item">
-                    <label for="filter_active">Activate Filter:</label>
-                    <input type="checkbox" id="filter_active">
-                </div>
-                <div class="gui-item">
-                    <label for="face_detection_active">Face Detection:</label>
-                    <input type="checkbox" id="face_detection_active">
-                </div>
-                <div class="gui-item">
-                    <label for="fullscreen_checkbox">Fullscreen:</label>
-                    <input type="checkbox" id="fullscreen_checkbox">
-                </div>
-                <button id="reset_button">Reset</button>
+        <button id="show_gui_button">CTRL</button>
+
+        <div id="gui" class="hidden">
+            <button id="hide_gui_button">CLOSE</button>
+            <div class="gui-item">
+                <label for="max_num_hands">Max Hands:</label>
+                <input type="range" id="max_num_hands" min="1" max="4" step="1" value="2">
             </div>
+            <div class="gui-item">
+                <label for="filter_select">Filter:</label>
+                <select id="filter_select">
+                    <option value="ascii">ASCII Terminal</option>
+                    <option value="bleed">Data Bleed</option>
+                    <option value="neural">Neural Network</option>
+                    <option value="voronoi">Voronoi Shatter</option>
+                    <option value="virtualboy">VIRTUAL BOY</option>
+                    <option value="synapse">Cyber Synapse</option>
+                    <option value="trace">Trace Corridors</option>
+                    <option value="orbital">Orbital Array</option>
+                    <option value="hive">Digital Hive</option>
+                    <option value="liquidflow">Liquid Flow</option>
+                    <option value="spectral">Spectral Grid</option>
+                    <option value="modeler">Neural Modeler</option>
+                    <option value="asciidistort">ASCII Distort</option>
+                    <option value="flowfield">Particle Flow Field</option>
+                    <option value="cyberscope">Lissajous Cyberscope</option>
+                    <option value="frameglitch">Frame Buffer Glitch</option>
+                    <option value="attractor">Strange Attractor</option>
+                    <option value="holorain">Holographic Rain</option>
+                    <option value="warpdrive">Warp Drive</option>
+                    <option value="feedback">Synaptic Feedback</option>
+                    <option value="aether">Aetherial Fluid</option>
+                    <option value="containment">Antimatter Containment</option>
+                    <option value="cryoshards">Cryo-Shards</option>
+                    <option value="gravity_well">Gravity Well Emitter</option>
+                    <option value="voxel_decomp">Voxelated Decomposition</option>
+                    <option value="bifurcation">Bifurcation Diagram</option>
+                    <option value="jet">Relativistic Jet</option>
+                    <option value="lorenz">Lorenz Attractor</option>
+                    <option value="clifford">Clifford Attractor</option>
+                    <option value="hopalong">Hopalong Attractor</option>
+                </select>
+            </div>
+            <div class="gui-item">
+                <label for="filter_active">Activate Filter:</label>
+                <input type="checkbox" id="filter_active">
+            </div>
+            <div class="gui-item">
+                <label for="face_detection_active">Face Detection:</label>
+                <input type="checkbox" id="face_detection_active">
+            </div>
+            <div class="gui-item">
+                <label for="fullscreen_checkbox">Fullscreen:</label>
+                <input type="checkbox" id="fullscreen_checkbox">
+            </div>
+            <button id="reset_button">Reset</button>
         </div>
-        <!-- FIN DE LA NOUVELLE STRUCTURE -->
 
         <div id="game_ui">
             <div id="timer"></div>
@@ -507,9 +513,9 @@
         const handCursor1 = document.getElementById('hand_cursor_1');
         const handCursor2 = document.getElementById('hand_cursor_2');
         const handCursors = [handCursor1, handCursor2];
-        // Nouveaux sélecteurs pour le menu dépliant
-        const guiToggle = document.getElementById('gui_toggle');
-        const guiContent = document.getElementById('gui_content');
+        
+        const showGuiButton = document.getElementById('show_gui_button');
+        const hideGuiButton = document.getElementById('hide_gui_button');
 
         // Instance P5.js pour le bruit de Perlin
         let p5Instance;
@@ -951,16 +957,15 @@
 
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 canvasCtx.fillStyle = '#00FF00';
-                canvasCtx.font = '15px "Press Start 2P"';
+                canvasCtx.font = '8px "Press Start 2P"';
                 canvasCtx.textAlign = 'center';
                 canvasCtx.textBaseline = 'bottom';
-                canvasCtx.fillText("HAND CONNECTION ESTABLISHED", w / 2, h - 50); // Modifié
+                canvasCtx.fillText("HAND CONNECTION ESTABLISHED", w / 2, h - 50);
             } else {
                 const time = performance.now() / 1000, blinkSpeed = 0.5;
                 const opacity = (Math.sin(time * 2 * Math.PI * blinkSpeed) + 1) / 2;
                 canvasCtx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
 
-                // Logique pour la taille de police dynamique
                 const text = "SHOW ME YOUR HANDS";
                 let fontSize = 80;
                 canvasCtx.font = `${fontSize}px "Press Start 2P"`;
@@ -990,9 +995,9 @@
         async function initAudio() { if (isAudioInitialized) return; audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const reverbNode = await createReverb(audioCtx); reverbNode.connect(audioCtx.destination); for (let i = 0; i < 4; i++) { const gainNode = audioCtx.createGain(); gainNode.gain.setValueAtTime(0, audioCtx.currentTime); gainNode.connect(reverbNode); if (i === 0) { const osc = audioCtx.createOscillator(), lfo = audioCtx.createOscillator(), lfoGain = audioCtx.createGain(); lfo.type = 'sine'; lfo.frequency.value = 0; lfoGain.gain.value = 10; lfo.connect(lfoGain).connect(osc.frequency); osc.type = 'sine'; osc.frequency.value = 100; osc.connect(gainNode); lfo.start(); osc.start(); audioNodes.push({ type: 'simple', osc, lfo, gain: gainNode }); } else { const carrier = audioCtx.createOscillator(), modulator = audioCtx.createOscillator(), modulatorGain = audioCtx.createGain(); carrier.type = 'sine'; modulator.type = 'sine'; modulator.connect(modulatorGain).connect(carrier.frequency); carrier.connect(gainNode); carrier.frequency.value = 100; modulator.frequency.value = 150; modulatorGain.gain.value = 50; carrier.start(); modulator.start(); audioNodes.push({ type: 'fm', carrier, modulator, modulatorGain, gain: gainNode }); } } isAudioInitialized = true; }
         
         // --- SECTION DU JEU ---
-        function startGame() { if (!isAudioInitialized) initAudio(); guiElement.style.display = 'none'; startGameButton.style.display = 'none'; document.getElementById('volume_control').style.display = 'none'; titleLink.style.display = 'none'; gameUiElement.style.display = 'block'; let count = 3; countdownElement.textContent = count; countdownInterval = setInterval(() => { count--; if (count > 0) { countdownElement.textContent = count; } else { countdownElement.textContent = 'GO!'; setTimeout(() => { countdownElement.textContent = ''; beginGameplay(); }, 1000); clearInterval(countdownInterval); } }, 1000); }
+        function startGame() { if (!isAudioInitialized) initAudio(); guiElement.classList.add('hidden'); showGuiButton.classList.add('hidden'); startGameButton.style.display = 'none'; document.getElementById('volume_control').style.display = 'none'; titleLink.style.display = 'none'; gameUiElement.style.display = 'block'; let count = 3; countdownElement.textContent = count; countdownInterval = setInterval(() => { count--; if (count > 0) { countdownElement.textContent = count; } else { countdownElement.textContent = 'GO!'; setTimeout(() => { countdownElement.textContent = ''; beginGameplay(); }, 1000); clearInterval(countdownInterval); } }, 1000); }
         function beginGameplay() { isGameRunning = true; score = 0; timeLeft = 60; scoreElement.textContent = 'Score: 0'; timerElement.textContent = 'Time: 60'; generateNewTarget(); gameInterval = setInterval(() => { timeLeft--; timerElement.textContent = `Time: ${timeLeft}`; if (timeLeft <= 0) { endGame(); } }, 1000); }
-        function endGame() { clearInterval(gameInterval); isGameRunning = false; countdownElement.textContent = `Final Score: ${score}`; setTimeout(() => { gameUiElement.style.display = 'none'; countdownElement.textContent = ''; startGameButton.style.display = 'block'; guiElement.style.display = 'block'; document.getElementById('volume_control').style.display = 'flex'; titleLink.style.display = 'block';}, 7000); }
+        function endGame() { clearInterval(gameInterval); isGameRunning = false; countdownElement.textContent = `Final Score: ${score}`; setTimeout(() => { gameUiElement.style.display = 'none'; countdownElement.textContent = ''; startGameButton.style.display = 'block'; showGuiButton.classList.remove('hidden'); document.getElementById('volume_control').style.display = 'flex'; titleLink.style.display = 'block';}, 7000); }
         function mapValue(value, in_min, in_max, out_min, out_max) { const clampedValue = Math.max(in_min, Math.min(value, in_max)); return (clampedValue - in_min) * (out_max - out_min) / (in_max - in_min) + out_min; }
         function updateGame(w, h) { if (handValues[0] !== undefined) { player.x = w - mapValue(handValues[0], 100, 750, 0, w - player.size); } if (handValues[1] !== undefined) { player.y = mapValue(handValues[1], 100, 750, 0, h - player.size); } if (player.x > target.x && player.x + player.size < target.x + target.size && player.y > target.y && player.y + player.size < target.y + target.size) { score += 100; scoreElement.textContent = `Score: ${score}`; generateNewTarget(); } }
         function drawGameElements() { canvasCtx.fillStyle = 'rgba(0, 150, 255, 0.8)'; canvasCtx.strokeStyle = '#00f'; canvasCtx.lineWidth = 3; canvasCtx.fillRect(target.x, target.y, target.size, target.size); canvasCtx.strokeRect(target.x, target.y, target.size, target.size); canvasCtx.fillStyle = 'rgba(255, 50, 50, 0.9)'; canvasCtx.strokeStyle = '#f00'; canvasCtx.lineWidth = 3; canvasCtx.fillRect(player.x, player.y, player.size, player.size); canvasCtx.strokeRect(player.x, player.y, player.size, player.size); }
@@ -1145,9 +1150,14 @@
             updateFilterMenuLayout();
         });
 
-        // NOUVEL ÉVÉNEMENT POUR LE MENU DÉPLIANT
-        guiToggle.addEventListener('click', () => {
-            guiContent.classList.toggle('collapsed');
+        showGuiButton.addEventListener('click', () => {
+            guiElement.classList.remove('hidden');
+            showGuiButton.classList.add('hidden');
+        });
+
+        hideGuiButton.addEventListener('click', () => {
+            guiElement.classList.add('hidden');
+            showGuiButton.classList.remove('hidden');
         });
         
         navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => { videoElement.srcObject = stream; }).catch((err) => { console.error("Erreur d'accès à la webcam: " + err); alert("Impossible d'accéder à la webcam."); });
